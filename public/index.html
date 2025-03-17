@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Real-Time Crypto Market Trend Data (30-second interval timestamp)</title>
+        <meta property="og:title" content="SABO CAT THE MARKET WIZARD" />
+        <link rel="icon" type="image/png" href="sabo-cat-favicon.png">
+        <script src="https://unpkg.com/lightweight-charts@3.4.0/dist/lightweight-charts.standalone.production.js"></script>
+        <link rel="stylesheet" href="https://use.typekit.net/af/153422/00000000000000007759c419/30/l?subset_id=2&fvd=n3&v=3" type="text/css">
+        <style>
+        @font-face {
+            font-display: swap;
+            font-family: 'main';
+            font-style: normal;
+            font-weight: 400;
+            src: url(/_nuxt/fonts/Heavitas.5b7b2b4.woff2) format("woff2"),
+                 url(/_nuxt/fonts/Heavitas.65e6f2b.woff) format("woff");
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            min-height: 100vh;
+        }
+
+        #matrix-container {
+            width: 100%;
+            height: 50vh;
+            max-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+        #canvas {
+            width: 100%;
+            height: 100%;
+        }
+        #matrix-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 90%;
+            max-width: 600px;
+            z-index: 1;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        #matrix-image img {
+            width: 45%;
+            max-width: 200px;
+            height: auto;
+            transform-origin: center;
+            outline: none;
+        }
+
+        /* Desktop default offsets */
+        #matrix-image img:first-child { /* sabo-cat-transparency.png */
+            margin-top: var(--transparency-vertical-offset, 0px);
+            margin-left: var(--transparency-horizontal-offset, 50px);
+        }
+        #matrix-image img:last-child { /* sabo-cat-staff.png */
+            margin-top: var(--staff-vertical-offset, 0px);
+            margin-left: var(--staff-horizontal-offset, -183px);
+        }
+
+        .bottom-right-images {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 2;
+        }
+        .bottom-right-images img {
+            height: clamp(40px, 10vw, 75px);
+            width: auto;
+        }
+
+        #logo {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        #logo img {
+            height: clamp(4rem, 20vw, 10rem);
+            width: auto;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        #logo h1 {
+            font-family: 'main', sans-serif;
+            color: #00ff00;
+            font-size: clamp(1rem, 4vw, 2rem);
+            margin: 0;
+            margin-left: -1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+            white-space: nowrap;
+        }
+
+        .bottom-left-buttons {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .ca-container, .mail-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .ca-button, .buy-button, .manifesto-button, 
+        .audio-toggle-button, .counter-button {
+            font-family: 'main', sans-serif;
+            font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+            color: #00ff00;
+            background: transparent;
+            border: 1px solid #00ff00;
+            padding: 0.3rem 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .ca-button:hover, .buy-button:hover, 
+        .manifesto-button:hover, .audio-toggle-button:hover, 
+        .counter-button:hover {
+            background: rgba(0, 255, 0, 0.1);
+            text-shadow: 0 0 10px rgba(0, 255, 0, 1);
+        }
+
+        .copied-message {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            font-family: 'main', sans-serif;
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            color: #00ff00;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .mail-copied-message {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            font-family: 'main', sans-serif;
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            color: #00ff00;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .social-links {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            z-index: 2;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .social-links a {
+            transition: transform 0.3s ease;
+        }
+        .social-links a:hover {
+            transform: scale(1.1);
+        }
+        .social-links img {
+            height: clamp(30px, 8vw, 50px);
+            width: auto;
+        }
+
+        #background-audio {
+            display: none;
+        }
+
+        .marquee {
+            width: 100%;
+            height: 3rem;
+            overflow: hidden;
+            position: relative;
+            background: black;
+            border-top: 1px solid #00ff00;
+            border-bottom: 1px solid #00ff00;
+            line-height: 3rem;
+        }
+        .marquee-content {
+            display: flex;
+            width: 200%;
+            animation: marquee-scroll 15s linear infinite;
+        }
+        .marquee-content span {
+            font-family: 'main', sans-serif;
+            font-size: clamp(0.9rem, 2.5vw, 1.5rem);
+            color: #00ff00;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+            padding-right: 1rem;
+            white-space: nowrap;
+            flex: 1;
+        }
+        @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .marquee:hover .marquee-content {
+            animation-play-state: paused;
+        }
+
+        .charts-wrapper {
+            width: 100%;
+            height: 90vh;
+            background: black;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Distribute space evenly */
+            align-items: center;
+            padding: 0.3rem 0; /* Reduced padding from 0.5rem to 0.3rem to fit larger charts */
+            box-sizing: border-box;
+        }
+
+        .chart-container {
+            width: 90%;
+            height: 50%; /* Increased from 42% to 50% (approximately 20% increase) */
+            background-color: #1a1a1a; /* Match chart background */
+            position: relative;
+            border: 1px solid #00ff00; /* Green border to tie into theme */
+            border-radius: 5px; /* Slight rounding for modern look */
+        }
+
+        h2 {
+            color: white;
+            text-align: center;
+            margin: 0.2rem 0; /* Reduced from 0.3rem to 0.2rem to minimize gaps */
+            font-family: 'proxima-nova', sans-serif;
+            font-weight: 300;
+            font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+        }
+
+        .twitter-banner {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0;
+        }
+
+        .solana-marquee {
+            width: 100%;
+            height: clamp(100px, 20vh, 170px);
+            overflow: hidden;
+            position: relative;
+            background: black;
+            border-top: 1px solid #00ff00;
+            border-bottom: 1px solid #00ff00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0;
+            padding: 1rem 0;
+        }
+        .solana-marquee-content {
+            display: flex;
+            width: 200%;
+            animation: solana-scroll 15s linear infinite;
+            white-space: nowrap;
+        }
+        .solana-marquee-content span {
+            font-family: 'main', sans-serif;
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            color: #00ff00;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+            padding-right: 0.5rem;
+        }
+        .solana-marquee-content img {
+            height: clamp(1.5rem, 4vw, 3rem);
+            width: auto;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+        @keyframes solana-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .solana-marquee:hover .solana-marquee-content {
+            animation-play-state: paused;
+        }
+
+        .image-gallery {
+            width: 100%;
+            background: black;
+            padding: 1rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .gallery-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 95%;
+            margin-bottom: 1rem;
+        }
+        .gallery-image {
+            position: relative;
+            width: clamp(25%, 30vw, 30%);
+            margin: 0.5rem;
+        }
+        .gallery-image img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            border: 2px solid #00ff00;
+            z-index: 1000;
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+        .popup img {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+        }
+        .popup-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            color: #00ff00;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #manifesto {
+            width: 100%;
+            padding: 2rem 1rem;
+            background: black;
+            color: #00ff00;
+            text-align: center;
+            font-family: 'main', sans-serif;
+        }
+
+        #manifesto h2 {
+            color: #00ff00;
+            font-family: 'main', sans-serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+        }
+
+        .manifesto-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .manifesto-content h3 {
+            color: #00ff00;
+            font-family: 'main', sans-serif;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            margin: 1.5rem 0 0.5rem;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+        }
+
+        .manifesto-content p {
+            color: #00ff00;
+            font-family: 'main', sans-serif;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
+        }
+
+        .manifesto-content .highlight {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            font-weight: bold;
+            margin-top: 2rem;
+            text-align: center;
+            text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+        }
+
+        .bottom-right-container {
+            width: 100%;
+            background: black;
+            padding: 1rem;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 1rem;
+        }
+        .bottom-right-container img#sabo-labs {
+            height: clamp(130px, 40vw, 220px);
+            width: auto;
+        }
+        .bottom-right-container img#mail-logo {
+            height: clamp(40px, 10vw, 60px);
+            width: auto;
+            cursor: pointer;
+        }
+        .bottom-right-container a {
+            transition: transform 0.3s ease;
+        }
+        .bottom-right-container a:hover {
+            transform: scale(1.05); /* Slight scale effect on hover */
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            #matrix-image {
+                flex-direction: column;
+                gap: 0;
+            }
+            #matrix-image img {
+                width: 60%;
+                max-width: 150px;
+            }
+            #matrix-image img:first-child {
+                margin-top: var(--transparency-vertical-offset, 20px);
+                margin-left: var(--transparency-horizontal-offset, 0px);
+            }
+            #matrix-image img:last-child {
+                margin-top: var(--staff-vertical-offset, -118px);
+                margin-left: var(--staff-horizontal-offset, 28px);
+            }
+            .bottom-left-buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 0.5rem;
+            }
+            #logo h1 {
+                margin-left: 0;
+            }
+            .gallery-row {
+                flex-direction: column;
+                align-items: center;
+            }
+            .gallery-image {
+                width: 80%;
+                margin: 0.5rem 0;
+            }
+            .charts-wrapper {
+                height: 70vh; /* Reduced further for mobile */
+            }
+            .chart-container {
+                height: 48%; /* Slightly less than 50% to fit within 70vh on mobile */
+            }
+            h2 {
+                font-size: clamp(0.7rem, 1.6vw, 1rem);
+                margin: 0.2rem 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #matrix-image img {
+                width: 70%;
+                max-width: 120px;
+            }
+            .bottom-right-images img {
+                height: clamp(30px, 8vw, 50px);
+            }
+            .social-links img {
+                height: clamp(25px, 6vw, 40px);
+            }
+            .bottom-right-container img#sabo-labs {
+                height: clamp(60px, 15vw, 120px);
+            }
+            .bottom-right-container img#mail-logo {
+                height: clamp(30px, 8vw, 50px);
+            }
+        }
+
+        /* Landscape mode adjustments for mobile */
+        @media (orientation: landscape) and (max-height: 500px) {
+            #matrix-container {
+                height: 40vh;
+                max-height: 300px;
+            }
+
+            #matrix-image {
+                flex-direction: row;
+                gap: 5px;
+                width: 80%;
+                max-width: 400px;
+            }
+
+            #matrix-image img {
+                width: 40%;
+                max-width: 120px;
+            }
+
+            #matrix-image img:first-child {
+                margin-top: 0;
+                margin-left: 0;
+            }
+
+            #matrix-image img:last-child {
+                margin-top: 0;
+                margin-left: 0;
+            }
+
+            #logo {
+                top: 0.3rem;
+                left: 0.3rem;
+            }
+
+            #logo img {
+                height: clamp(2rem, 15vw, 4rem);
+            }
+
+            #logo h1 {
+                font-size: clamp(0.8rem, 3vw, 1.2rem);
+            }
+
+            .bottom-left-buttons {
+                bottom: 0.5rem;
+                width: 90%;
+                gap: 0.3rem;
+            }
+
+            .ca-button, .buy-button, .manifesto-button, 
+            .audio-toggle-button, .counter-button {
+                font-size: clamp(0.6rem, 2vw, 1rem);
+                padding: 0.2rem 0.4rem;
+            }
+
+            .bottom-right-images img {
+                height: clamp(20px, 8vw, 40px);
+            }
+
+            .social-links img {
+                height: clamp(20px, 6vw, 30px);
+            }
+
+            .bottom-right-container img#sabo-labs {
+                height: clamp(50px, 12vw, 90px);
+            }
+            .bottom-right-container img#mail-logo {
+                height: clamp(25px, 6vw, 40px);
+            }
+
+            .charts-wrapper {
+                height: 75vh; /* Adjusted for landscape */
+            }
+            .chart-container {
+                height: 48%; /* Slightly less than 50% for landscape */
+            }
+            h2 {
+                font-size: clamp(0.6rem, 1.4vw, 0.9rem);
+                margin: 0.1rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio id="background-audio" autoplay loop>
+        <source src="background-song.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div id="matrix-container">
+        <canvas id="canvas"></canvas>
+        <div id="matrix-image">
+            <img src="sabo-cat-transparency.png" alt="sabo cat transparency">
+            <img src="sabo-cat-staff.png" alt="sabo cat staff">
+        </div>
+        <div id="logo">
+            <img src="logo.png" alt="Sabo Cat Logo" id="logo-image">
+            <h1>SABO CAT MARKET WIZARD</h1>
+        </div>
+        <div class="bottom-right-images">
+        </div>
+        <div class="bottom-left-buttons">
+            <div class="ca-container">
+                <button class="ca-button">CA</button>
+                <div class="copied-message" id="copied-message">Copied</div>
+            </div>
+            <button class="buy-button">BUY</button>
+            <button class="manifesto-button">MANIFESTO</button>
+            <button class="audio-toggle-button" id="audio-toggle">PAUSE</button>
+            <button class="counter-button" id="counter-button">Counter: 0</button>
+        </div>
+        <div class="social-links">
+            <a href="https://t.me/sabocatportal" target="_blank">
+                <img src="images/telegramlogo.png" alt="Telegram">
+            </a>
+            <a href="https://x.com/sabocatai" target="_blank">
+                <img src="images/xlogo.png" alt="X">
+            </a>
+        </div>
+    </div>
+    <div class="marquee">
+        <div class="marquee-content">
+            <span>$SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI</span>
+            <span>$SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI</span>
+        </div>
+    </div>
+    <div class="charts-wrapper">
+        <h2>Real-Time Solana AI Market Trend Data (30-second interval timestamp)</h2>
+        <div id="chart1" class="chart-container"></div>
+        <h2>Real-Time Crypto Major Assets Trending Data (30-second interval timestamp)</h2>
+        <div id="chart2" class="chart-container"></div>
+        <div class="marquee">
+            <div class="marquee-content">
+                <span>$SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI</span>
+                <span>$SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI</span>
+            </div>
+        </div>
+    </div>
+    <img src="images/sabo-cat-twitter-banner.png" alt="Sabo Cat Twitter Banner" class="twitter-banner">
+    <div class="solana-marquee">
+        <div class="solana-marquee-content">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+        </div>
+    </div>
+    <div class="image-gallery">
+        <div class="gallery-row">
+            <div class="gallery-image">
+                <img src="images/classroom-sabo.png" alt="Classroom Sabo">
+                <div class="popup">
+                    <img src="images/classroom-sabo.png" alt="Classroom Sabo Enlarged">
+                    <span class="popup-close">X</span>
+                </div>
+            </div>
+            <div class="gallery-image">
+                <img src="images/sabo-cat-coder.png" alt="Sabo Cat Coder">
+                <div class="popup">
+                    <img src="images/sabo-cat-coder.png" alt="Sabo Cat Coder Enlarged">
+                    <span class="popup-close">X</span>
+                </div>
+            </div>
+            <div class="gallery-image">
+                <img src="images/sabo-cat-glad.png" alt="Sabo Cat Glad">
+                <div class="popup">
+                    <img src="images/sabo-cat-glad.png" alt="Sabo Cat Glad Enlarged">
+                    <span class="popup-close">X</span>
+                </div>
+            </div>
+        </div>
+        <div class="gallery-row">
+            <div class="gallery-image">
+                <img src="images/sabo-cat-time-square.png" alt="Sabo Cat Time Square">
+                <div class="popup">
+                    <img src="images/sabo-cat-time-square.png" alt="Sabo Cat Time Square Enlarged">
+                    <span class="popup-close">X</span>
+                </div>
+            </div>
+            <div class="gallery-image">
+                <img src="images/sabo-cat-wizard.png" alt="Sabo Cat Wizard">
+                <div class="popup">
+                    <img src="images/sabo-cat-wizard.png" alt="Sabo Cat Wizard Enlarged">
+                    <span class="popup-close">X</span>
+                </div>
+            </div>
+            <div class="gallery-image">
+                <img src="images/sabo-paris.png" alt="Sabo Paris">
+                <div class="popup">
+                    <img src="images/sabo-paris.png" alt="Sabo Paris Enlarged">
+                    <span class="popup-close">X</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section id="manifesto">
+        <h2>MANIFESTO</h2>
+        <div class="manifesto-content">
+            <h3>Unleash the Market Wizard</h3>
+            <p>SABO CAT is more than just a meme coin—it's an AI-powered market wizard that helps traders predict crypto trends and sentiment. Think of it as your guide to navigating the highs and lows of the market.</p>
+            
+            <h3>Tools for Traders</h3>
+            <p>We provide powerful tools to track market sentiment and trends, giving you an edge in the fast-paced world of meme coins.</p>
+            
+            <h3>Built by Innovators</h3>
+            <p>SABO CAT is backed by engineers dedicated to building cutting-edge tools for AI and meme coin traders.</p>
+            
+            <h3>Join the Movement</h3>
+            <p>SABO CAT is more than a token—it's a community of traders ready to ride the waves of the crypto market together.</p>
+            
+            <p class="highlight">Embrace the Future. Embrace SABO CAT.</p>
+        </div>
+    </section>
+    <div class="bottom-right-container">
+        <div class="mail-container">
+            <img src="images/mail-logo.png" alt="Mail" id="mail-logo">
+            <div class="mail-copied-message" id="mail-copied-message">Copied</div>
+        </div>
+        <a href="https://x.com/sabolabs" target="_blank">
+            <img src="images/sabo-labs.png" alt="Sabo Labs" id="sabo-labs">
+        </a>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let w = canvas.width = window.innerWidth;
+        let h = canvas.height = document.getElementById('matrix-container').offsetHeight;
+        const str = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポ";
+        const matrix = str.split("");
+        let font = 12;
+        let col = w / font;
+        let arr = [];
+        for(let i = 0; i < col; i++) arr[i] = 1;
+        function rain() {
+            ctx.fillStyle = "rgba(0,0,0,0.05)";
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = "#00ff00";
+            ctx.font = font + "px arial";
+            for(let i = 0; i < arr.length; i++) {
+                let txt = matrix[Math.floor(Math.random() * matrix.length)];
+                ctx.fillText(txt, i * font, arr[i] * font);
+                if(arr[i] * font > h && Math.random() > 0.975) arr[i] = 0;
+                arr[i]++;
+            }
+        }
+        setInterval(rain, 30);
+        window.addEventListener("resize", () => {
+            w = canvas.width = window.innerWidth;
+            h = document.getElementById('matrix-container').offsetHeight;
+            col = w / font;
+            arr = [];
+            for(let i = 0; i < col; i++) arr[i] = 1;
+        });
+    
+        window.addEventListener('load', async function () {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('portrait')
+                    .then(() => console.log('Orientation locked to portrait'))
+                    .catch(err => console.error('Failed to lock orientation:', err));
+            } else {
+                console.warn('Screen Orientation API not supported');
+            }
+    
+            const chart1Container = document.getElementById('chart1');
+            const chart2Container = document.getElementById('chart2');
+    
+            if (!chart1Container || !chart2Container) {
+                console.error('Chart containers not found! Check HTML for chart1 and chart2 divs.');
+                return;
+            }
+    
+            const chart1 = LightweightCharts.createChart(chart1Container, {
+                width: chart1Container.offsetWidth,
+                height: chart1Container.offsetHeight,
+                layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
+                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
+                timeScale: {
+                    timeVisible: true,
+                    secondsVisible: true,
+                    borderColor: '#00ff00',
+                    tickMarkFormatter: (time) => {
+                        const date = new Date(time * 1000);
+                        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    },
+                },
+                rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
+                handleScroll: { mouseWheel: true, pressedMouseMove: true },
+                handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
+            });
+    
+            const chart2 = LightweightCharts.createChart(chart2Container, {
+                width: chart2Container.offsetWidth,
+                height: chart2Container.offsetHeight,
+                layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
+                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
+                timeScale: {
+                    timeVisible: true,
+                    secondsVisible: true,
+                    borderColor: '#00ff00',
+                    tickMarkFormatter: (time) => {
+                        const date = new Date(time * 1000);
+                        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    },
+                },
+                rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
+                handleScroll: { mouseWheel: true, pressedMouseMove: true },
+                handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
+            });
+    
+            let fgSeries1 = [], fgSeries2 = [];
+            let fgDataPoints1 = []; // Full dataset
+            let fgDataPoints2 = [];
+    
+            function updateChart(chart, dataPoints, seriesArray) {
+                const now = Math.floor(Date.now() / 1000);
+                const tenHoursAgo = now - 36000; // Fixed 10-hour window
+                const filteredData = dataPoints.filter(point => point.time >= tenHoursAgo);
+    
+                seriesArray.forEach(s => chart.removeSeries(s.series));
+                seriesArray.length = 0;
+    
+                let currentSeries = null;
+                for (let i = 0; i < filteredData.length; i++) {
+                    if (i === 0 || filteredData[i].value !== filteredData[i - 1].value) {
+                        const color = i > 0 && filteredData[i].value > filteredData[i - 1].value ? '#00ff00' : '#ff0000';
+                        currentSeries = chart.addLineSeries({
+                            color: color,
+                            lineWidth: 2,
+                            priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
+                        });
+                        seriesArray.push({ series: currentSeries, color: color });
+                    }
+                    currentSeries.setData(filteredData.slice(0, i + 1));
+                }
+                chart.timeScale().fitContent();
+            }
+    
+            async function fetchInitialData() {
+                try {
+                    const response = await fetch('/data');
+                    const data = await response.json();
+                    fgDataPoints1 = data.fgDataPoints1; // Full dataset
+                    fgDataPoints2 = data.fgDataPoints2;
+    
+                    console.log('Full data fetched:', fgDataPoints1.length, fgDataPoints2.length);
+    
+                    const now = Math.floor(Date.now() / 1000);
+                    const tenHoursAgo = now - 36000; // 10 hours in seconds
+                    const initialDataPoints1 = fgDataPoints1.filter(point => point.time >= tenHoursAgo);
+                    const initialDataPoints2 = fgDataPoints2.filter(point => point.time >= tenHoursAgo);
+    
+                    console.log('Initial 10-hour data:', initialDataPoints1.length, initialDataPoints2.length);
+    
+                    const initialSeries1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
+                    fgSeries1.push({ series: initialSeries1, color: '#00ff00' });
+                    initialSeries1.setData(initialDataPoints1);
+                    chart1.timeScale().fitContent();
+    
+                    const initialSeries2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
+                    fgSeries2.push({ series: initialSeries2, color: '#00ff00' });
+                    initialSeries2.setData(initialDataPoints2);
+                    chart2.timeScale().fitContent();
+                } catch (error) {
+                    console.error('Error fetching initial data:', error);
+                }
+            }
+    
+            const ws = new WebSocket('ws://localhost:8081');
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                fgDataPoints1 = data.fgDataPoints1;
+                fgDataPoints2 = data.fgDataPoints2;
+                updateChart(chart1, fgDataPoints1, fgSeries1);
+                updateChart(chart2, fgDataPoints2, fgSeries2);
+            };
+            ws.onopen = () => console.log('WebSocket connected');
+            ws.onerror = (error) => console.error('WebSocket error:', error);
+            ws.onclose = () => console.log('WebSocket closed');
+    
+            await fetchInitialData();
+    
+            function resizeCharts() {
+                chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
+                chart2.resize(chart2Container.offsetWidth, chart2Container.offsetHeight);
+            }
+            window.addEventListener('resize', resizeCharts);
+    
+            const caButton = document.querySelector('.ca-button');
+            const copiedMessage = document.getElementById('copied-message');
+            const caString = "YOUR_LONG_STRING_HERE";
+            caButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(caString).then(() => {
+                    copiedMessage.style.opacity = '1';
+                    setTimeout(() => copiedMessage.style.opacity = '0', 1000);
+                }).catch(err => console.error('Failed to copy text: ', err));
+            });
+    
+            const mailLogo = document.getElementById('mail-logo');
+            const mailCopiedMessage = document.getElementById('mail-copied-message');
+            const mailString = "0xgatoexe@gmail.com";
+            mailLogo.addEventListener('click', () => {
+                navigator.clipboard.writeText(mailString).then(() => {
+                    mailCopiedMessage.style.opacity = '1';
+                    setTimeout(() => mailCopiedMessage.style.opacity = '0', 1000);
+                }).catch(err => console.error('Failed to copy email: ', err));
+            });
+    
+            const buyButton = document.querySelector('.buy-button');
+            const buyUrl = "https://example.com";
+            buyButton.addEventListener('click', () => window.open(buyUrl, '_blank'));
+    
+            const manifestoButton = document.querySelector('.manifesto-button');
+            const manifestoSection = document.getElementById('manifesto');
+            manifestoButton.addEventListener('click', () => manifestoSection.scrollIntoView({ behavior: 'smooth' }));
+    
+            const logoImage = document.getElementById('logo-image');
+            let isFlipped = false;
+            logoImage.addEventListener('click', () => {
+                isFlipped = !isFlipped;
+                logoImage.style.transform = isFlipped ? 'rotate(180deg)' : 'rotate(0deg)';
+            });
+    
+            const galleryImages = document.querySelectorAll('.gallery-image');
+            galleryImages.forEach(gallery => {
+                const img = gallery.querySelector('img');
+                const popup = gallery.querySelector('.popup');
+                const closeBtn = gallery.querySelector('.popup-close');
+                img.addEventListener('click', () => popup.style.display = 'block');
+                closeBtn.addEventListener('click', () => popup.style.display = 'none');
+            });
+    
+            const audio = document.getElementById('background-audio');
+            const audioToggleButton = document.getElementById('audio-toggle');
+            audio.play().catch(error => {
+                console.log("Autoplay prevented:", error);
+                document.body.addEventListener('click', function startAudio() {
+                    audio.play();
+                    document.body.removeEventListener('click', startAudio);
+                }, { once: true });
+            });
+            audioToggleButton.addEventListener('click', () => {
+                if (audio.paused) {
+                    audio.play();
+                    audioToggleButton.textContent = 'PAUSE';
+                } else {
+                    audio.pause();
+                    audioToggleButton.textContent = 'PLAY';
+                }
+            });
+    
+            const transparencyImg = document.querySelector('#matrix-image img:first-child');
+            const staffImg = document.querySelector('#matrix-image img:last-child');
+            let rotationCount = 0;
+            let clickCount = 0;
+            function rotateStaff() {
+                clickCount++;
+                rotationCount = (rotationCount + 1) % 8;
+                const rotationAngle = rotationCount * 45;
+                staffImg.style.transform = `rotate(${rotationAngle}deg)`;
+                document.getElementById('counter-button').textContent = `Counter: ${clickCount}`;
+            }
+            transparencyImg.addEventListener('click', rotateStaff);
+            staffImg.addEventListener('click', rotateStaff);
+        });
+    </script>
+</body>
+</html>
