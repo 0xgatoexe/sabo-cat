@@ -1,14 +1,16 @@
 {
   "name": "sabo-cat",
   "version": "1.0.0",
-  "engines": {
-    "node": "20.x"  // Replace with your local Node version (check with `node --version`)
-  },
+  "description": "Sabo Cat Market Wizard",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "ws": "^8.16.0"
+    "express": "^4.18.2",
+    "ws": "^8.14.2"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }
