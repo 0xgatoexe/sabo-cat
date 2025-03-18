@@ -1,10 +1,10 @@
 const express = require('express');
 const WebSocket = require('ws');
 const fs = require('fs').promises;
-const path = require('path'); // Add path module
+const path = require('path');
 
 const app = express();
-const wss = new WebSocket.Server({ port: 8081 });
+const port = process.env.PORT || 3000; // Use Heroku's PORT or 3000 locally
 
 const coins1 = ["solana", "bittensor", "render-network"];
 const coins2 = ["bitcoin", "ethereum", "ripple", "binance-coin", "solana", "dogecoin"];
@@ -99,17 +99,25 @@ app.get('/data', (req, res) => {
     res.json({ fgDataPoints1, fgDataPoints2 });
 });
 
-// Serve static files from the root directory
 app.use(express.static(__dirname));
 
-// Explicitly serve index.html for the root URL
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Start server and attach WebSocket to it
+const server = app.listen(port, () => console.log(`Server running on port ${port}`));
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+    ws.on('message', (message) => {
+        console.log('Received:', message);
+    });
+    ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 }));
+});
+
 async function startServer() {
     await loadData();
-    app.listen(3000, () => console.log('Server running on port 3000'));
     setInterval(updateData, 30000);
     updateData();
 }
