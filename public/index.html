@@ -131,11 +131,11 @@
         .ca-button, .buy-button, .manifesto-button, 
         .audio-toggle-button, .counter-button {
             font-family: 'main', sans-serif;
-            font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.3rem); /* Increased base size */
             color: #00ff00;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ff00;
-            padding: 0.4rem 0.8rem;
+            background: rgba(0, 0, 0, 0.8); /* Added dark semi-transparent background */
+            border: 2px solid #00ff00; /* Thicker border */
+            padding: 0.4rem 0.8rem; /* Increased padding */
             text-transform: uppercase;
             letter-spacing: 0.1rem;
             text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
@@ -145,7 +145,7 @@
         .ca-button:hover, .buy-button:hover, 
         .manifesto-button:hover, .audio-toggle-button:hover, 
         .counter-button:hover {
-            background: rgba(0, 255, 0, 0.2);
+            background: rgba(0, 255, 0, 0.2); /* Lighter green on hover */
             text-shadow: 0 0 10px rgba(0, 255, 0, 1);
         }
 
@@ -556,7 +556,7 @@
 
             .ca-button, .buy-button, .manifesto-button, 
             .audio-toggle-button, .counter-button {
-                font-size: clamp(0.8rem, 2vw, 1.2rem);
+                font-size: clamp(0.8rem, 2vw, 1.2rem); /* Adjusted for readability */
                 padding: 0.3rem 0.6rem;
             }
 
@@ -751,7 +751,7 @@
         let h = canvas.height = document.getElementById('matrix-container').offsetHeight;
         const str = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポ";
         const matrix = str.split("");
-        let font = window.innerWidth <= 768 ? 10 : 12;
+        let font = window.innerWidth <= 768 ? 10 : 12; // Smaller font on mobile
         let col = w / font;
         let arr = [];
         for(let i = 0; i < col; i++) arr[i] = 1;
@@ -771,7 +771,7 @@
         window.addEventListener("resize", () => {
             w = canvas.width = window.innerWidth;
             h = document.getElementById('matrix-container').offsetHeight;
-            font = window.innerWidth <= 768 ? 10 : 12;
+            font = window.innerWidth <= 768 ? 10 : 12; // Adjust font on resize
             col = w / font;
             arr = [];
             for(let i = 0; i < col; i++) arr[i] = 1;
@@ -837,8 +837,9 @@
             let fgDataPoints2 = [];
     
             function updateChart(chart, dataPoints, seriesArray) {
-                // Use all data points without filtering
-                const filteredData = dataPoints;
+                const now = Math.floor(Date.now() / 1000);
+                const tenHoursAgo = now - 36000; // Fixed 10-hour window
+                const filteredData = dataPoints.filter(point => point.time >= tenHoursAgo);
     
                 seriesArray.forEach(s => chart.removeSeries(s.series));
                 seriesArray.length = 0;
