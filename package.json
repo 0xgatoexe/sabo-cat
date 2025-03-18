@@ -1,17 +1,14 @@
 {
-  "name": "sabo-cat-charts",
+  "name": "sabo-cat",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "engines": {
+    "node": "20.x"  // Replace with your local Node version (check with `node --version`)
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
-    "express": "^4.21.2",
-    "node-fetch": "^3.3.2",
-    "ws": "^8.18.1"
+    "express": "^4.19.2",
+    "ws": "^8.16.0"
   }
 }

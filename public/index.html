@@ -131,11 +131,11 @@
         .ca-button, .buy-button, .manifesto-button, 
         .audio-toggle-button, .counter-button {
             font-family: 'main', sans-serif;
-            font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.3rem); /* Increased base size */
             color: #00ff00;
-            background: transparent;
-            border: 1px solid #00ff00;
-            padding: 0.3rem 0.6rem;
+            background: rgba(0, 0, 0, 0.8); /* Added dark semi-transparent background */
+            border: 2px solid #00ff00; /* Thicker border */
+            padding: 0.4rem 0.8rem; /* Increased padding */
             text-transform: uppercase;
             letter-spacing: 0.1rem;
             text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
@@ -145,7 +145,7 @@
         .ca-button:hover, .buy-button:hover, 
         .manifesto-button:hover, .audio-toggle-button:hover, 
         .counter-button:hover {
-            background: rgba(0, 255, 0, 0.1);
+            background: rgba(0, 255, 0, 0.2); /* Lighter green on hover */
             text-shadow: 0 0 10px rgba(0, 255, 0, 1);
         }
 
@@ -238,25 +238,25 @@
             background: black;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Distribute space evenly */
+            justify-content: space-between;
             align-items: center;
-            padding: 0.3rem 0; /* Reduced padding from 0.5rem to 0.3rem to fit larger charts */
+            padding: 0.3rem 0;
             box-sizing: border-box;
         }
 
         .chart-container {
             width: 90%;
-            height: 50%; /* Increased from 42% to 50% (approximately 20% increase) */
-            background-color: #1a1a1a; /* Match chart background */
+            height: 50%;
+            background-color: #1a1a1a;
             position: relative;
-            border: 1px solid #00ff00; /* Green border to tie into theme */
-            border-radius: 5px; /* Slight rounding for modern look */
+            border: 1px solid #00ff00;
+            border-radius: 5px;
         }
 
         h2 {
             color: white;
             text-align: center;
-            margin: 0.2rem 0; /* Reduced from 0.3rem to 0.2rem to minimize gaps */
+            margin: 0.2rem 0;
             font-family: 'proxima-nova', sans-serif;
             font-weight: 300;
             font-size: clamp(0.9rem, 1.8vw, 1.3rem);
@@ -438,7 +438,7 @@
             transition: transform 0.3s ease;
         }
         .bottom-right-container a:hover {
-            transform: scale(1.05); /* Slight scale effect on hover */
+            transform: scale(1.05);
         }
 
         /* Mobile-specific adjustments */
@@ -476,10 +476,10 @@
                 margin: 0.5rem 0;
             }
             .charts-wrapper {
-                height: 70vh; /* Reduced further for mobile */
+                height: 70vh;
             }
             .chart-container {
-                height: 48%; /* Slightly less than 50% to fit within 70vh on mobile */
+                height: 48%;
             }
             h2 {
                 font-size: clamp(0.7rem, 1.6vw, 1rem);
@@ -556,8 +556,8 @@
 
             .ca-button, .buy-button, .manifesto-button, 
             .audio-toggle-button, .counter-button {
-                font-size: clamp(0.6rem, 2vw, 1rem);
-                padding: 0.2rem 0.4rem;
+                font-size: clamp(0.8rem, 2vw, 1.2rem); /* Adjusted for readability */
+                padding: 0.3rem 0.6rem;
             }
 
             .bottom-right-images img {
@@ -576,10 +576,10 @@
             }
 
             .charts-wrapper {
-                height: 75vh; /* Adjusted for landscape */
+                height: 75vh;
             }
             .chart-container {
-                height: 48%; /* Slightly less than 50% for landscape */
+                height: 48%;
             }
             h2 {
                 font-size: clamp(0.6rem, 1.4vw, 0.9rem);
@@ -751,7 +751,7 @@
         let h = canvas.height = document.getElementById('matrix-container').offsetHeight;
         const str = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポ";
         const matrix = str.split("");
-        let font = 12;
+        let font = window.innerWidth <= 768 ? 10 : 12; // Smaller font on mobile
         let col = w / font;
         let arr = [];
         for(let i = 0; i < col; i++) arr[i] = 1;
@@ -771,6 +771,7 @@
         window.addEventListener("resize", () => {
             w = canvas.width = window.innerWidth;
             h = document.getElementById('matrix-container').offsetHeight;
+            font = window.innerWidth <= 768 ? 10 : 12; // Adjust font on resize
             col = w / font;
             arr = [];
             for(let i = 0; i < col; i++) arr[i] = 1;
@@ -832,7 +833,7 @@
             });
     
             let fgSeries1 = [], fgSeries2 = [];
-            let fgDataPoints1 = []; // Full dataset
+            let fgDataPoints1 = [];
             let fgDataPoints2 = [];
     
             function updateChart(chart, dataPoints, seriesArray) {
@@ -863,37 +864,23 @@
                 try {
                     const response = await fetch('/data');
                     const data = await response.json();
-                    fgDataPoints1 = data.fgDataPoints1; // Full dataset
-                    fgDataPoints2 = data.fgDataPoints2;
+                    fgDataPoints1 = data.fgDataPoints1 || [];
+                    fgDataPoints2 = data.fgDataPoints2 || [];
     
                     console.log('Full data fetched:', fgDataPoints1.length, fgDataPoints2.length);
     
-                    const now = Math.floor(Date.now() / 1000);
-                    const tenHoursAgo = now - 36000; // 10 hours in seconds
-                    const initialDataPoints1 = fgDataPoints1.filter(point => point.time >= tenHoursAgo);
-                    const initialDataPoints2 = fgDataPoints2.filter(point => point.time >= tenHoursAgo);
-    
-                    console.log('Initial 10-hour data:', initialDataPoints1.length, initialDataPoints2.length);
-    
-                    const initialSeries1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-                    fgSeries1.push({ series: initialSeries1, color: '#00ff00' });
-                    initialSeries1.setData(initialDataPoints1);
-                    chart1.timeScale().fitContent();
-    
-                    const initialSeries2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-                    fgSeries2.push({ series: initialSeries2, color: '#00ff00' });
-                    initialSeries2.setData(initialDataPoints2);
-                    chart2.timeScale().fitContent();
+                    updateChart(chart1, fgDataPoints1, fgSeries1);
+                    updateChart(chart2, fgDataPoints2, fgSeries2);
                 } catch (error) {
                     console.error('Error fetching initial data:', error);
                 }
             }
     
-            const ws = new WebSocket('ws://localhost:8081');
+            const ws = new WebSocket(`wss://${window.location.host}`);
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                fgDataPoints1 = data.fgDataPoints1;
-                fgDataPoints2 = data.fgDataPoints2;
+                fgDataPoints1 = data.fgDataPoints1 || [];
+                fgDataPoints2 = data.fgDataPoints2 || [];
                 updateChart(chart1, fgDataPoints1, fgSeries1);
                 updateChart(chart2, fgDataPoints2, fgSeries2);
             };
