@@ -59,12 +59,11 @@
             outline: none;
         }
 
-        /* Desktop default offsets */
-        #matrix-image img:first-child { /* sabo-cat-transparency.png */
+        #matrix-image img:first-child {
             margin-top: var(--transparency-vertical-offset, 0px);
             margin-left: var(--transparency-horizontal-offset, 50px);
         }
-        #matrix-image img:last-child { /* sabo-cat-staff.png */
+        #matrix-image img:last-child {
             margin-top: var(--staff-vertical-offset, 0px);
             margin-left: var(--staff-horizontal-offset, -183px);
         }
@@ -131,11 +130,11 @@
         .ca-button, .buy-button, .manifesto-button, 
         .audio-toggle-button, .counter-button {
             font-family: 'main', sans-serif;
-            font-size: clamp(0.9rem, 2.5vw, 1.3rem); /* Increased base size */
+            font-size: clamp(0.9rem, 2.5vw, 1.3rem);
             color: #00ff00;
-            background: rgba(0, 0, 0, 0.8); /* Added dark semi-transparent background */
-            border: 2px solid #00ff00; /* Thicker border */
-            padding: 0.4rem 0.8rem; /* Increased padding */
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            padding: 0.4rem 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.1rem;
             text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
@@ -145,7 +144,7 @@
         .ca-button:hover, .buy-button:hover, 
         .manifesto-button:hover, .audio-toggle-button:hover, 
         .counter-button:hover {
-            background: rgba(0, 255, 0, 0.2); /* Lighter green on hover */
+            background: rgba(0, 255, 0, 0.2);
             text-shadow: 0 0 10px rgba(0, 255, 0, 1);
         }
 
@@ -441,7 +440,6 @@
             transform: scale(1.05);
         }
 
-        /* Mobile-specific adjustments */
         @media (max-width: 768px) {
             #matrix-image {
                 flex-direction: column;
@@ -506,75 +504,61 @@
             }
         }
 
-        /* Landscape mode adjustments for mobile */
         @media (orientation: landscape) and (max-height: 500px) {
             #matrix-container {
                 height: 40vh;
                 max-height: 300px;
             }
-
             #matrix-image {
                 flex-direction: row;
                 gap: 5px;
                 width: 80%;
                 max-width: 400px;
             }
-
             #matrix-image img {
                 width: 40%;
                 max-width: 120px;
             }
-
             #matrix-image img:first-child {
                 margin-top: 0;
                 margin-left: 0;
             }
-
             #matrix-image img:last-child {
                 margin-top: 0;
                 margin-left: 0;
             }
-
             #logo {
                 top: 0.3rem;
                 left: 0.3rem;
             }
-
             #logo img {
                 height: clamp(2rem, 15vw, 4rem);
             }
-
             #logo h1 {
                 font-size: clamp(0.8rem, 3vw, 1.2rem);
             }
-
             .bottom-left-buttons {
                 bottom: 0.5rem;
                 width: 90%;
                 gap: 0.3rem;
             }
-
             .ca-button, .buy-button, .manifesto-button, 
             .audio-toggle-button, .counter-button {
-                font-size: clamp(0.8rem, 2vw, 1.2rem); /* Adjusted for readability */
+                font-size: clamp(0.8rem, 2vw, 1.2rem);
                 padding: 0.3rem 0.6rem;
             }
-
             .bottom-right-images img {
                 height: clamp(20px, 8vw, 40px);
             }
-
             .social-links img {
                 height: clamp(20px, 6vw, 30px);
             }
-
             .bottom-right-container img#sabo-labs {
                 height: clamp(50px, 12vw, 90px);
             }
             .bottom-right-container img#mail-logo {
                 height: clamp(25px, 6vw, 40px);
             }
-
             .charts-wrapper {
                 height: 75vh;
             }
@@ -751,7 +735,7 @@
         let h = canvas.height = document.getElementById('matrix-container').offsetHeight;
         const str = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポ";
         const matrix = str.split("");
-        let font = window.innerWidth <= 768 ? 10 : 12; // Smaller font on mobile
+        let font = window.innerWidth <= 768 ? 10 : 12;
         let col = w / font;
         let arr = [];
         for(let i = 0; i < col; i++) arr[i] = 1;
@@ -771,7 +755,7 @@
         window.addEventListener("resize", () => {
             w = canvas.width = window.innerWidth;
             h = document.getElementById('matrix-container').offsetHeight;
-            font = window.innerWidth <= 768 ? 10 : 12; // Adjust font on resize
+            font = window.innerWidth <= 768 ? 10 : 12;
             col = w / font;
             arr = [];
             for(let i = 0; i < col; i++) arr[i] = 1;
@@ -837,9 +821,7 @@
             let fgDataPoints2 = [];
     
             function updateChart(chart, dataPoints, seriesArray) {
-                const now = Math.floor(Date.now() / 1000);
-                const tenHoursAgo = now - 36000; // Fixed 10-hour window
-                const filteredData = dataPoints.filter(point => point.time >= tenHoursAgo);
+                const filteredData = dataPoints; // Use all data, no filtering
     
                 seriesArray.forEach(s => chart.removeSeries(s.series));
                 seriesArray.length = 0;
