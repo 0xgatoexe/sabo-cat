@@ -1,10 +1,11 @@
 const express = require('express');
+const fetch = require('node-fetch');
 const WebSocket = require('ws');
 const fs = require('fs').promises;
-const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 3000; // Use Heroku's PORT or 3000 locally
+const server = app.listen(3000, () => console.log('Server running on port 3000'));
+const wss = new WebSocket.Server({ server }); // Use the same server as Express
 
 const coins1 = ["solana", "bittensor", "render-network"];
 const coins2 = ["bitcoin", "ethereum", "ripple", "binance-coin", "solana", "dogecoin"];
@@ -29,9 +30,33 @@ async function loadData() {
     } catch (err) {
         console.log('No initial fgDataPoints2 found, starting fresh');
     }
+
+    // Ensure 10 hours of data (1200 points at 30s intervals)
+    const now = Math.floor(Date.now() / 1000);
+    const tenHoursAgo = now - 36000; // 10 hours in seconds
+    if (fgDataPoints1.length < 1200 || fgDataPoints1[0].time > tenHoursAgo) {
+        console.log('Preloading 10 hours for fgDataPoints1');
+        fgDataPoints1 = [];
+        for (let i = 0; i < 1200; i++) {
+            const time = now - (1199 - i) * 30;
+            fgDataPoints1.push({ time, value: 50 }); // Start at neutral 50
+        }
+    }
+    if (fgDataPoints2.length < 1200 || fgDataPoints2[0].time > tenHoursAgo) {
+        console.log('Preloading 10 hours for fgDataPoints2');
+        fgDataPoints2 = [];
+        for (let i = 0; i < 1200; i++) {
+            const time = now - (1199 - i) * 30;
+            fgDataPoints2.push({ time, value: 50 }); // Start at neutral 50
+        }
+    }
 }
 
 async function saveData() {
+    // Trim to last 10 hours to avoid infinite growth
+    const tenHoursAgo = Math.floor(Date.now() / 1000) - 36000;
+    fgDataPoints1 = fgDataPoints1.filter(point => point.time >= tenHoursAgo);
+    fgDataPoints2 = fgDataPoints2.filter(point => point.time >= tenHoursAgo);
     await fs.writeFile('fgDataPoints1.json', JSON.stringify(fgDataPoints1));
     await fs.writeFile('fgDataPoints2.json', JSON.stringify(fgDataPoints2));
 }
@@ -99,21 +124,10 @@ app.get('/data', (req, res) => {
     res.json({ fgDataPoints1, fgDataPoints2 });
 });
 
-app.use(express.static(__dirname));
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Start server and attach WebSocket to it
-const server = app.listen(port, () => console.log(`Server running on port ${port}`));
-const wss = new WebSocket.Server({ server });
+app.use(express.static('public'));
 
 wss.on('connection', (ws) => {
-    ws.on('message', (message) => {
-        console.log('Received:', message);
-    });
-    ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 }));
+    ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 })); // Send initial data on connect
 });
 
 async function startServer() {
