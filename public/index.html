@@ -823,47 +823,40 @@
                 const cutoff = now - timeFrames[timeFrame];
                 const filteredData = dataPoints.filter(point => point.time >= cutoff);
     
-                // Clear existing series
-                seriesArray.forEach(s => chart.removeSeries(s.series));
-                seriesArray.length = 0;
+                if (seriesArray.length === 0 || filteredData.length === 0) {
+                    seriesArray.forEach(s => chart.removeSeries(s.series));
+                    seriesArray.length = 0;
+                }
     
                 if (filteredData.length === 0) return;
     
-                // Segment the data based on direction changes
-                let currentSegment = [filteredData[0]];
-                for (let i = 1; i < filteredData.length; i++) {
-                    const prevValue = filteredData[i - 1].value;
-                    const currValue = filteredData[i].value;
+                if (seriesArray.length === 0) {
+                    const initialSeries = chart.addLineSeries({
+                        color: '#00ff00',
+                        lineWidth: 2,
+                        priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
+                    });
+                    initialSeries.setData([filteredData[0]]);
+                    seriesArray.push({ series: initialSeries, color: '#00ff00' });
+                }
     
-                    if (currValue !== prevValue) {
-                        // Determine color based on direction
-                        const color = currValue > prevValue ? '#00ff00' : '#ff0000';
-                        const series = chart.addLineSeries({
+                const lastSeries = seriesArray[seriesArray.length - 1].series;
+                const lastData = lastSeries.data().slice(-1)[0] || filteredData[0];
+                const newData = filteredData.slice(-1)[0];
+    
+                if (newData.time > lastData.time) {
+                    const color = newData.value > lastData.value ? '#00ff00' : '#ff0000';
+                    if (newData.value !== lastData.value) {
+                        const newSeries = chart.addLineSeries({
                             color: color,
                             lineWidth: 2,
                             priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
                         });
-                        series.setData(currentSegment);
-                        seriesArray.push({ series, color });
-    
-                        // Start a new segment
-                        currentSegment = [filteredData[i]];
+                        newSeries.setData([lastData, newData]);
+                        seriesArray.push({ series: newSeries, color });
                     } else {
-                        currentSegment.push(filteredData[i]);
+                        lastSeries.update(newData);
                     }
-                }
-    
-                // Add the last segment
-                if (currentSegment.length > 0) {
-                    const lastIndex = filteredData.length - 1;
-                    const color = lastIndex > 0 && filteredData[lastIndex].value > filteredData[lastIndex - 1].value ? '#00ff00' : '#ff0000';
-                    const series = chart.addLineSeries({
-                        color: color,
-                        lineWidth: 2,
-                        priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
-                    });
-                    series.setData(currentSegment);
-                    seriesArray.push({ series, color });
                 }
     
                 chart.timeScale().fitContent();
@@ -873,26 +866,35 @@
                 try {
                     const response = await fetch('/data');
                     const data = await response.json();
-                    fgDataPoints1 = data.fgDataPoints1;
-                    fgDataPoints2 = data.fgDataPoints2;
-    
+                    fgDataPoints1 = data.fgDataPoints1 || [];
+                    fgDataPoints2 = data.fgDataPoints2 || [];
                     console.log('Initial data fetched:', fgDataPoints1.length, fgDataPoints2.length);
-    
                     updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
                     updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
-    
                     createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
                     createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
                 } catch (error) {
                     console.error('Error fetching initial data:', error);
+                    // Fallback to dummy data
+                    fgDataPoints1 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 100 }];
+                    fgDataPoints2 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 50 }];
+                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
+                    createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
+                    createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
                 }
             }
     
             const ws = new WebSocket('ws://localhost:8081');
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                fgDataPoints1 = data.fgDataPoints1;
-                fgDataPoints2 = data.fgDataPoints2;
+                if (data.fgDataPoints1 && data.fgDataPoints1.length > 0) {
+                    fgDataPoints1.push(...data.fgDataPoints1);
+                }
+                if (data.fgDataPoints2 && data.fgDataPoints2.length > 0) {
+                    fgDataPoints2.push(...data.fgDataPoints2);
+                }
+                console.log('New data received:', data);
                 updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
                 updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
             };
