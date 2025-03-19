@@ -823,22 +823,49 @@
                 const cutoff = now - timeFrames[timeFrame];
                 const filteredData = dataPoints.filter(point => point.time >= cutoff);
     
+                // Clear existing series
                 seriesArray.forEach(s => chart.removeSeries(s.series));
                 seriesArray.length = 0;
     
-                let currentSeries = null;
-                for (let i = 0; i < filteredData.length; i++) {
-                    if (i === 0 || filteredData[i].value !== filteredData[i - 1].value) {
-                        const color = i > 0 && filteredData[i].value > filteredData[i - 1].value ? '#00ff00' : '#ff0000';
-                        currentSeries = chart.addLineSeries({
+                if (filteredData.length === 0) return;
+    
+                // Segment the data based on direction changes
+                let currentSegment = [filteredData[0]];
+                for (let i = 1; i < filteredData.length; i++) {
+                    const prevValue = filteredData[i - 1].value;
+                    const currValue = filteredData[i].value;
+    
+                    if (currValue !== prevValue) {
+                        // Determine color based on direction
+                        const color = currValue > prevValue ? '#00ff00' : '#ff0000';
+                        const series = chart.addLineSeries({
                             color: color,
                             lineWidth: 2,
                             priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
                         });
-                        seriesArray.push({ series: initialSeries1, color: color });
+                        series.setData(currentSegment);
+                        seriesArray.push({ series, color });
+    
+                        // Start a new segment
+                        currentSegment = [filteredData[i]];
+                    } else {
+                        currentSegment.push(filteredData[i]);
                     }
-                    currentSeries.setData(filteredData.slice(0, i + 1));
                 }
+    
+                // Add the last segment
+                if (currentSegment.length > 0) {
+                    const lastIndex = filteredData.length - 1;
+                    const color = lastIndex > 0 && filteredData[lastIndex].value > filteredData[lastIndex - 1].value ? '#00ff00' : '#ff0000';
+                    const series = chart.addLineSeries({
+                        color: color,
+                        lineWidth: 2,
+                        priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
+                    });
+                    series.setData(currentSegment);
+                    seriesArray.push({ series, color });
+                }
+    
                 chart.timeScale().fitContent();
             }
     
@@ -851,15 +878,8 @@
     
                     console.log('Initial data fetched:', fgDataPoints1.length, fgDataPoints2.length);
     
-                    const initialSeries1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-                    fgSeries1.push({ series: initialSeries1, color: '#00ff00' });
-                    initialSeries1.setData(fgDataPoints1);
-                    chart1.timeScale().fitContent();
-    
-                    const initialSeries2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-                    fgSeries2.push({ series: initialSeries2, color: '#00ff00' });
-                    initialSeries2.setData(fgDataPoints2);
-                    chart2.timeScale().fitContent();
+                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
     
                     createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
                     createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
