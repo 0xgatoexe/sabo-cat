@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 const WebSocket = require('ws');
 const fs = require('fs').promises;
 
+const app = express(); // Define the Express app
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const wss = new WebSocket.Server({ server });
