@@ -597,11 +597,11 @@
     <div id="matrix-container">
         <canvas id="canvas"></canvas>
         <div id="matrix-image">
-            <img src="sabo-cat-transparency.png" alt="sabo cat transparency">
-            <img src="sabo-cat-staff.png" alt="sabo cat staff">
+            <img src="images/sabo-cat-transparency.png" alt="sabo cat transparency">
+            <img src="images/sabo-cat-staff.png" alt="sabo cat staff">
         </div>
         <div id="logo">
-            <img src="logo.png" alt="Sabo Cat Logo" id="logo-image">
+            <img src="images/logo.png" alt="Sabo Cat Logo" id="logo-image">
             <h1>SABO CAT MARKET WIZARD</h1>
         </div>
         <div class="bottom-right-images">
@@ -775,152 +775,74 @@
             arr = [];
             for(let i = 0; i < col; i++) arr[i] = 1;
         });
-    
-        window.addEventListener('load', function () {
+
+        window.addEventListener('load', async function () {
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('portrait')
-                    .then(() => {
-                        console.log('Orientation locked to portrait');
-                    })
-                    .catch((err) => {
-                        console.error('Failed to lock orientation:', err);
-                    });
+                    .then(() => console.log('Orientation locked to portrait'))
+                    .catch(err => console.error('Failed to lock orientation:', err));
             } else {
-                console.warn('Screen Orientation API not supported in this browser');
+                console.warn('Screen Orientation API not supported');
             }
-    
+
             const chart1Container = document.getElementById('chart1');
             const chart2Container = document.getElementById('chart2');
 
-            // Chart 1 Initialization
+            if (!chart1Container || !chart2Container) {
+                console.error('Chart containers not found! Check HTML for chart1 and chart2 divs.');
+                return;
+            }
+
             const chart1 = LightweightCharts.createChart(chart1Container, {
                 width: chart1Container.offsetWidth,
                 height: chart1Container.offsetHeight,
-                layout: {
-                    backgroundColor: '#1a1a1a',
-                    textColor: '#ffffff',
-                },
-                grid: {
-                    vertLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                    horzLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                },
+                layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
+                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
                 timeScale: {
                     timeVisible: true,
                     secondsVisible: true,
                     borderColor: '#00ff00',
                     tickMarkFormatter: (time) => {
                         const date = new Date(time * 1000);
-                        return date.toLocaleString('en-US', {
-                            timeZone: 'America/New_York',
-                            hour12: false,
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                        });
+                        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     },
                 },
-                rightPriceScale: {
-                    borderColor: '#00ff00',
-                    scaleMargins: { top: 0.1, bottom: 0.1 },
-                },
+                rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
                 handleScroll: { mouseWheel: true, pressedMouseMove: true },
                 handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
             });
 
-            // Chart 2 Initialization
             const chart2 = LightweightCharts.createChart(chart2Container, {
                 width: chart2Container.offsetWidth,
                 height: chart2Container.offsetHeight,
-                layout: {
-                    backgroundColor: '#1a1a1a',
-                    textColor: '#ffffff',
-                },
-                grid: {
-                    vertLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                    horzLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                },
+                layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
+                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
                 timeScale: {
                     timeVisible: true,
                     secondsVisible: true,
                     borderColor: '#00ff00',
                     tickMarkFormatter: (time) => {
                         const date = new Date(time * 1000);
-                        return date.toLocaleString('en-US', {
-                            timeZone: 'America/New_York',
-                            hour12: false,
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                        });
+                        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     },
                 },
-                rightPriceScale: {
-                    borderColor: '#00ff00',
-                    scaleMargins: { top: 0.1, bottom: 0.1 },
-                },
+                rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
                 handleScroll: { mouseWheel: true, pressedMouseMove: true },
                 handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
             });
 
-            // Chart Data Management
             let fgSeries1 = [], fgSeries2 = [];
-            let fgDataPoints1 = JSON.parse(localStorage.getItem('fgDataPoints1')) || [{ time: Math.floor(Date.now() / 1000), value: 50 }];
-            let fgDataPoints2 = JSON.parse(localStorage.getItem('fgDataPoints2')) || [{ time: Math.floor(Date.now() / 1000), value: 50 }];
-            let prevPrices1 = {}, prevPrices2 = {};
-            let fgScore1 = fgDataPoints1[fgDataPoints1.length - 1].value;
-            let fgScore2 = fgDataPoints2[fgDataPoints2.length - 1].value;
-            const coins1 = ["solana", "ai16z", "fartcoin", "zerebro", "goat", "griffain", "tao", "virtual", "act", "render", "arc"];
-            const coins2 = ["bitcoin", "ethereum", "ripple", "binancecoin", "solana", "dogecoin"];
+            let fgDataPoints1 = []; // Full dataset
+            let fgDataPoints2 = [];
 
-            // Time Frame Management
-            const timeFrames = {
-                '1H': 3600,  // 1 hour in seconds
-                '4H': 14400, // 4 hours in seconds
-                '1D': 86400, // 1 day in seconds
-                'ALL': Infinity // Show all data
-            };
-            let currentTimeFrame1 = 'ALL';
-            let currentTimeFrame2 = 'ALL';
-
-            // Add Time Frame Dropdowns
-            function createTimeFrameSelector(chartNum, chart, dataPoints, seriesArray) {
-                const container = document.getElementById(`chart${chartNum}`).parentElement;
-                const selector = document.createElement('select');
-                selector.style.position = 'absolute';
-                selector.style.top = '10px';
-                selector.style.right = '10px';
-                selector.style.background = '#1a1a1a';
-                selector.style.color = '#00ff00';
-                selector.style.border = '1px solid #00ff00';
-                selector.style.padding = '5px';
-                for (const [label, seconds] of Object.entries(timeFrames)) {
-                    const option = document.createElement('option');
-                    option.value = label;
-                    option.text = label;
-                    selector.appendChild(option);
-                }
-                selector.value = 'ALL';
-                container.style.position = 'relative';
-                container.appendChild(selector);
-
-                selector.addEventListener('change', () => {
-                    const timeFrame = selector.value;
-                    if (chartNum === 1) currentTimeFrame1 = timeFrame;
-                    else currentTimeFrame2 = timeFrame;
-                    updateChart(chart, dataPoints, seriesArray, timeFrame);
-                });
-            }
-
-            function updateChart(chart, dataPoints, seriesArray, timeFrame) {
+            function updateChart(chart, dataPoints, seriesArray) {
                 const now = Math.floor(Date.now() / 1000);
-                const cutoff = now - timeFrames[timeFrame];
-                const filteredData = dataPoints.filter(point => point.time >= cutoff);
+                const tenHoursAgo = now - 36000; // Fixed 10-hour window
+                const filteredData = dataPoints.filter(point => point.time >= tenHoursAgo);
 
-                // Clear existing series
                 seriesArray.forEach(s => chart.removeSeries(s.series));
                 seriesArray.length = 0;
 
-                // Redraw series with filtered data
                 let currentSeries = null;
                 for (let i = 0; i < filteredData.length; i++) {
                     if (i === 0 || filteredData[i].value !== filteredData[i - 1].value) {
@@ -937,137 +859,109 @@
                 chart.timeScale().fitContent();
             }
 
-            // Initial Chart Setup
-            const initialSeries1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-            fgSeries1.push({ series: initialSeries1, color: '#00ff00' });
-            initialSeries1.setData(fgDataPoints1);
-            chart1.timeScale().fitContent();
-
-            const initialSeries2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-            fgSeries2.push({ series: initialSeries2, color: '#00ff00' });
-            initialSeries2.setData(fgDataPoints2);
-            chart2.timeScale().fitContent();
-
-            // Add Time Frame Selectors
-            createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
-            createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
-
-            // Fetch and Update Chart Data
-            async function fetchCryptoData(chart, coins, dataPoints, seriesArray, prevPrices, fgScoreKey) {
-                const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(",")}&vs_currencies=usd`;
+            async function fetchInitialData() {
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch('/data');
                     const data = await response.json();
-                    const now = Date.now() / 1000;
-                    const estTimestamp = Math.floor(now / 30) * 30;
-                    let numUp = 0, numDown = 0;
-                    for (let coin of coins) {
-                        if (data[coin] && data[coin].usd !== undefined) {
-                            let price = data[coin].usd;
-                            if (prevPrices[coin] !== undefined) {
-                                if (price > prevPrices[coin]) numUp++;
-                                else if (price < prevPrices[coin]) numDown++;
-                            }
-                            prevPrices[coin] = price;
-                        }
-                    }
-                    let fgScore = dataPoints[dataPoints.length - 1].value;
-                    let previousFgScore = fgScore;
-                    if (numUp > numDown) fgScore = Math.min(100, fgScore + 2);
-                    else if (numDown > numUp) fgScore = Math.max(0, fgScore - 2);
-                    dataPoints.push({ time: estTimestamp, value: fgScore });
-                    localStorage.setItem(fgScoreKey, JSON.stringify(dataPoints));
+                    fgDataPoints1 = data.fgDataPoints1; // Full dataset
+                    fgDataPoints2 = data.fgDataPoints2;
 
-                    updateChart(chart, dataPoints, seriesArray, chart === chart1 ? currentTimeFrame1 : currentTimeFrame2);
+                    console.log('Full data fetched:', fgDataPoints1.length, fgDataPoints2.length);
+
+                    const now = Math.floor(Date.now() / 1000);
+                    const tenHoursAgo = now - 36000; // 10 hours in seconds
+                    const initialDataPoints1 = fgDataPoints1.filter(point => point.time >= tenHoursAgo);
+                    const initialDataPoints2 = fgDataPoints2.filter(point => point.time >= tenHoursAgo);
+
+                    console.log('Initial 10-hour data:', initialDataPoints1.length, initialDataPoints2.length);
+
+                    const initialSeries1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
+                    fgSeries1.push({ series: initialSeries1, color: '#00ff00' });
+                    initialSeries1.setData(initialDataPoints1);
+                    chart1.timeScale().fitContent();
+
+                    const initialSeries2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
+                    fgSeries2.push({ series: initialSeries2, color: '#00ff00' });
+                    initialSeries2.setData(initialDataPoints2);
+                    chart2.timeScale().fitContent();
                 } catch (error) {
-                    console.error('Error fetching data from CoinGecko:', error);
+                    console.error('Error fetching initial data:', error);
                 }
             }
 
-            setInterval(() => fetchCryptoData(chart1, coins1, fgDataPoints1, fgSeries1, prevPrices1, 'fgDataPoints1'), 30000);
-            setInterval(() => fetchCryptoData(chart2, coins2, fgDataPoints2, fgSeries2, prevPrices2, 'fgDataPoints2'), 30000);
-            fetchCryptoData(chart1, coins1, fgDataPoints1, fgSeries1, prevPrices1, 'fgDataPoints1');
-            fetchCryptoData(chart2, coins2, fgDataPoints2, fgSeries2, prevPrices2, 'fgDataPoints2');
+            const ws = new WebSocket('ws://localhost:8081');
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                fgDataPoints1 = data.fgDataPoints1;
+                fgDataPoints2 = data.fgDataPoints2;
+                updateChart(chart1, fgDataPoints1, fgSeries1);
+                updateChart(chart2, fgDataPoints2, fgSeries2);
+            };
+            ws.onopen = () => console.log('WebSocket connected');
+            ws.onerror = (error) => console.error('WebSocket error:', error);
+            ws.onclose = () => console.log('WebSocket closed');
+
+            await fetchInitialData();
 
             function resizeCharts() {
                 chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
                 chart2.resize(chart2Container.offsetWidth, chart2Container.offsetHeight);
             }
             window.addEventListener('resize', resizeCharts);
-    
+
             const caButton = document.querySelector('.ca-button');
             const copiedMessage = document.getElementById('copied-message');
             const caString = "YOUR_LONG_STRING_HERE";
             caButton.addEventListener('click', () => {
                 navigator.clipboard.writeText(caString).then(() => {
                     copiedMessage.style.opacity = '1';
-                    setTimeout(() => {
-                        copiedMessage.style.opacity = '0';
-                    }, 1000);
-                }).catch(err => {
-                    console.error('Failed to copy text: ', err);
-                });
+                    setTimeout(() => copiedMessage.style.opacity = '0', 1000);
+                }).catch(err => console.error('Failed to copy text: ', err));
             });
-    
+
             const mailLogo = document.getElementById('mail-logo');
             const mailCopiedMessage = document.getElementById('mail-copied-message');
             const mailString = "0xgatoexe@gmail.com";
             mailLogo.addEventListener('click', () => {
                 navigator.clipboard.writeText(mailString).then(() => {
                     mailCopiedMessage.style.opacity = '1';
-                    setTimeout(() => {
-                        mailCopiedMessage.style.opacity = '0';
-                    }, 1000);
-                }).catch(err => {
-                    console.error('Failed to copy email: ', err);
-                });
+                    setTimeout(() => mailCopiedMessage.style.opacity = '0', 1000);
+                }).catch(err => console.error('Failed to copy email: ', err));
             });
-    
+
             const buyButton = document.querySelector('.buy-button');
             const buyUrl = "https://example.com";
-            buyButton.addEventListener('click', () => {
-                window.open(buyUrl, '_blank');
-            });
-    
+            buyButton.addEventListener('click', () => window.open(buyUrl, '_blank'));
+
             const manifestoButton = document.querySelector('.manifesto-button');
             const manifestoSection = document.getElementById('manifesto');
-            manifestoButton.addEventListener('click', () => {
-                manifestoSection.scrollIntoView({ behavior: 'smooth' });
-            });
-    
+            manifestoButton.addEventListener('click', () => manifestoSection.scrollIntoView({ behavior: 'smooth' }));
+
             const logoImage = document.getElementById('logo-image');
             let isFlipped = false;
             logoImage.addEventListener('click', () => {
                 isFlipped = !isFlipped;
                 logoImage.style.transform = isFlipped ? 'rotate(180deg)' : 'rotate(0deg)';
             });
-    
+
             const galleryImages = document.querySelectorAll('.gallery-image');
             galleryImages.forEach(gallery => {
                 const img = gallery.querySelector('img');
                 const popup = gallery.querySelector('.popup');
                 const closeBtn = gallery.querySelector('.popup-close');
-    
-                img.addEventListener('click', () => {
-                    popup.style.display = 'block';
-                });
-    
-                closeBtn.addEventListener('click', () => {
-                    popup.style.display = 'none';
-                });
+                img.addEventListener('click', () => popup.style.display = 'block');
+                closeBtn.addEventListener('click', () => popup.style.display = 'none');
             });
-    
+
             const audio = document.getElementById('background-audio');
             const audioToggleButton = document.getElementById('audio-toggle');
-    
             audio.play().catch(error => {
-                console.log("Autoplay was prevented:", error);
+                console.log("Autoplay prevented:", error);
                 document.body.addEventListener('click', function startAudio() {
                     audio.play();
                     document.body.removeEventListener('click', startAudio);
                 }, { once: true });
             });
-    
             audioToggleButton.addEventListener('click', () => {
                 if (audio.paused) {
                     audio.play();
@@ -1077,12 +971,11 @@
                     audioToggleButton.textContent = 'PLAY';
                 }
             });
-    
+
             const transparencyImg = document.querySelector('#matrix-image img:first-child');
             const staffImg = document.querySelector('#matrix-image img:last-child');
             let rotationCount = 0;
             let clickCount = 0;
-    
             function rotateStaff() {
                 clickCount++;
                 rotationCount = (rotationCount + 1) % 8;
@@ -1090,7 +983,6 @@
                 staffImg.style.transform = `rotate(${rotationAngle}deg)`;
                 document.getElementById('counter-button').textContent = `Counter: ${clickCount}`;
             }
-    
             transparencyImg.addEventListener('click', rotateStaff);
             staffImg.addEventListener('click', rotateStaff);
         });
