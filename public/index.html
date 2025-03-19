@@ -238,39 +238,28 @@
             background: black;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: space-between; /* Distribute space evenly */
             align-items: center;
-            padding: 0.3rem 0;
+            padding: 0.3rem 0; /* Reduced padding from 0.5rem to 0.3rem to fit larger charts */
             box-sizing: border-box;
         }
 
         .chart-container {
             width: 90%;
-            height: 50%;
-            background-color: #1a1a1a;
+            height: 50%; /* Increased from 42% to 50% (approximately 20% increase) */
+            background-color: #1a1a1a; /* Match chart background */
             position: relative;
-            border: 1px solid #00ff00;
-            border-radius: 5px;
+            border: 1px solid #00ff00; /* Green border to tie into theme */
+            border-radius: 5px; /* Slight rounding for modern look */
         }
 
         h2 {
             color: white;
             text-align: center;
-            margin: 0.2rem 0;
+            margin: 0.2rem 0; /* Reduced from 0.3rem to 0.2rem to minimize gaps */
             font-family: 'proxima-nova', sans-serif;
             font-weight: 300;
             font-size: clamp(0.9rem, 1.8vw, 1.3rem);
-        }
-
-        .timeframe-selector {
-            font-family: 'main', sans-serif;
-            font-size: clamp(0.8rem, 2vw, 1rem);
-            color: #00ff00;
-            background: #1a1a1a;
-            border: 1px solid #00ff00;
-            padding: 0.3rem;
-            margin: 0.2rem 0;
-            cursor: pointer;
         }
 
         .twitter-banner {
@@ -449,7 +438,7 @@
             transition: transform 0.3s ease;
         }
         .bottom-right-container a:hover {
-            transform: scale(1.05);
+            transform: scale(1.05); /* Slight scale effect on hover */
         }
 
         /* Mobile-specific adjustments */
@@ -487,10 +476,10 @@
                 margin: 0.5rem 0;
             }
             .charts-wrapper {
-                height: 70vh;
+                height: 70vh; /* Reduced further for mobile */
             }
             .chart-container {
-                height: 48%;
+                height: 48%; /* Slightly less than 50% to fit within 70vh on mobile */
             }
             h2 {
                 font-size: clamp(0.7rem, 1.6vw, 1rem);
@@ -587,10 +576,10 @@
             }
 
             .charts-wrapper {
-                height: 75vh;
+                height: 75vh; /* Adjusted for landscape */
             }
             .chart-container {
-                height: 48%;
+                height: 48%; /* Slightly less than 50% for landscape */
             }
             h2 {
                 font-size: clamp(0.6rem, 1.4vw, 0.9rem);
@@ -644,22 +633,8 @@
     </div>
     <div class="charts-wrapper">
         <h2>Real-Time Solana AI Market Trend Data (30-second interval timestamp)</h2>
-        <select id="timeframe1" class="timeframe-selector">
-            <option value="1h">1 Hour</option>
-            <option value="4h">4 Hours</option>
-            <option value="1d">1 Day</option>
-            <option value="10h" selected>10 Hours</option>
-            <option value="all">All</option>
-        </select>
         <div id="chart1" class="chart-container"></div>
         <h2>Real-Time Crypto Major Assets Trending Data (30-second interval timestamp)</h2>
-        <select id="timeframe2" class="timeframe-selector">
-            <option value="1h">1 Hour</option>
-            <option value="4h">4 Hours</option>
-            <option value="1d">1 Day</option>
-            <option value="10h" selected>10 Hours</option>
-            <option value="all">All</option>
-        </select>
         <div id="chart2" class="chart-container"></div>
         <div class="marquee">
             <div class="marquee-content">
@@ -807,19 +782,13 @@
                     .then(() => console.log('Orientation locked to portrait'))
                     .catch(err => console.error('Failed to lock orientation:', err));
             } else {
-                console.warn('Screen Orientation API not supported');
+                console.warn('Screen Orientation API not supported in this browser');
             }
     
             const chart1Container = document.getElementById('chart1');
             const chart2Container = document.getElementById('chart2');
-            const timeframe1 = document.getElementById('timeframe1');
-            const timeframe2 = document.getElementById('timeframe2');
     
-            if (!chart1Container || !chart2Container) {
-                console.error('Chart containers not found! Check HTML for chart1 and chart2 divs.');
-                return;
-            }
-    
+            // Chart 1 Initialization
             const chart1 = LightweightCharts.createChart(chart1Container, {
                 width: chart1Container.offsetWidth,
                 height: chart1Container.offsetHeight,
@@ -839,6 +808,7 @@
                 handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
             });
     
+            // Chart 2 Initialization
             const chart2 = LightweightCharts.createChart(chart2Container, {
                 width: chart2Container.offsetWidth,
                 height: chart2Container.offsetHeight,
@@ -858,25 +828,53 @@
                 handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
             });
     
+            // Chart Data Management
             let fgSeries1 = [], fgSeries2 = [];
-            let fgDataPoints1 = []; // Full dataset for Chart 1
-            let fgDataPoints2 = []; // Full dataset for Chart 2
+            let fgDataPoints1 = JSON.parse(localStorage.getItem('fgDataPoints1')) || [];
+            let fgDataPoints2 = JSON.parse(localStorage.getItem('fgDataPoints2')) || [];
+            let prevPrices1 = {}, prevPrices2 = {};
+            // Updated with valid CoinGecko IDs
+            const coins1 = ["solana", "bittensor", "render-network"]; // Adjusted invalid coins
+            const coins2 = ["bitcoin", "ethereum", "ripple", "binance-coin", "solana", "dogecoin"];
     
-            function filterData(dataPoints, timeframe) {
-                const now = Math.floor(Date.now() / 1000);
-                let cutoff;
-                switch (timeframe) {
-                    case '1h': cutoff = now - 3600; break;   // 1 hour
-                    case '4h': cutoff = now - 14400; break;  // 4 hours
-                    case '1d': cutoff = now - 86400; break;  // 1 day
-                    case '10h': cutoff = now - 36000; break; // 10 hours
-                    case 'all': return dataPoints;           // All data
+            // Time Frame Management
+            const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
+            let currentTimeFrame1 = 'ALL';
+            let currentTimeFrame2 = 'ALL';
+    
+            // Add Time Frame Dropdowns
+            function createTimeFrameSelector(chartNum, chart, dataPoints, seriesArray) {
+                const container = document.getElementById(`chart${chartNum}`).parentElement;
+                const selector = document.createElement('select');
+                selector.style.position = 'absolute';
+                selector.style.top = '10px';
+                selector.style.right = '10px';
+                selector.style.background = '#1a1a1a';
+                selector.style.color = '#00ff00';
+                selector.style.border = '1px solid #00ff00';
+                selector.style.padding = '5px';
+                for (const [label] of Object.entries(timeFrames)) {
+                    const option = document.createElement('option');
+                    option.value = label;
+                    option.text = label;
+                    selector.appendChild(option);
                 }
-                return dataPoints.filter(point => point.time >= cutoff);
+                selector.value = 'ALL';
+                container.style.position = 'relative';
+                container.appendChild(selector);
+    
+                selector.addEventListener('change', () => {
+                    const timeFrame = selector.value;
+                    if (chartNum === 1) currentTimeFrame1 = timeFrame;
+                    else currentTimeFrame2 = timeFrame;
+                    updateChart(chart, dataPoints, seriesArray, timeFrame);
+                });
             }
     
-            function updateChart(chart, dataPoints, seriesArray, timeframe) {
-                const filteredData = filterData(dataPoints, timeframe);
+            function updateChart(chart, dataPoints, seriesArray, timeFrame) {
+                const now = Math.floor(Date.now() / 1000);
+                const cutoff = now - timeFrames[timeFrame];
+                const filteredData = dataPoints.filter(point => point.time >= cutoff);
     
                 seriesArray.forEach(s => chart.removeSeries(s.series));
                 seriesArray.length = 0;
@@ -897,38 +895,125 @@
                 chart.timeScale().fitContent();
             }
     
-            async function fetchInitialData() {
+            // Fetch Historical Data for Multiple Coins
+            async function fetchHistoricalData(chart, coins, dataPoints, seriesArray, days = 1) {
+                const now = Math.floor(Date.now() / 1000);
+                const historicalPoints = [];
+                const interval = 1800; // 30 minutes in seconds
+                const pointsCount = Math.floor((days * 86400) / interval);
+    
+                console.log(`Fetching historical data for ${coins.length} coins over ${days} day(s)`);
+    
+                // Fetch historical data for each coin with delay to avoid rate limits
+                const priceHistories = await Promise.all(coins.map(async (coin, idx) => {
+                    await new Promise(resolve => setTimeout(resolve, idx * 1000)); // 1-second delay
+                    try {
+                        const url = `https://api.coingecko.com/api/v3/coins/${coin}/market_chart?vs_currency=usd&days=${days}&interval=30m`;
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        console.log(`Fetched data for ${coin}: ${data.prices.length} points`);
+                        return data.prices.map(([time, price]) => ({ time: Math.floor(time / 1000), price }));
+                    } catch (error) {
+                        console.error(`Error fetching historical data for ${coin}:`, error);
+                        return [];
+                    }
+                }));
+    
+                // Aggregate into trend scores
+                for (let i = 0; i < pointsCount; i++) {
+                    const timestamp = now - (pointsCount - 1 - i) * interval;
+                    let numUp = 0, numDown = 0;
+                    const prevPrices = {};
+    
+                    coins.forEach((coin, idx) => {
+                        const history = priceHistories[idx];
+                        const current = history.find(p => p.time >= timestamp - 900 && p.time <= timestamp + 900);
+                        if (current && prevPrices[coin] !== undefined) {
+                            if (current.price > prevPrices[coin]) numUp++;
+                            else if (current.price < prevPrices[coin]) numDown++;
+                        }
+                        if (current) prevPrices[coin] = current.price;
+                    });
+    
+                    let score = historicalPoints.length > 0 ? historicalPoints[historicalPoints.length - 1].value : 50;
+                    if (numUp > numDown) score = Math.min(100, score + 2);
+                    else if (numDown > numUp) score = Math.max(0, score - 2);
+                    historicalPoints.push({ time: timestamp, value: score });
+                }
+    
+                console.log(`Historical points generated: ${historicalPoints.length}`);
+    
+                dataPoints.length = 0;
+                dataPoints.push(...historicalPoints);
+                localStorage.setItem(chart === chart1 ? 'fgDataPoints1' : 'fgDataPoints2', JSON.stringify(dataPoints));
+                updateChart(chart, dataPoints, seriesArray, chart === chart1 ? currentTimeFrame1 : currentTimeFrame2);
+            }
+    
+            // Fetch and Update Real-Time Data
+            async function fetchCryptoData(chart, coins, dataPoints, seriesArray, prevPrices, fgScoreKey) {
+                const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(",")}&vs_currencies=usd`;
                 try {
-                    const response = await fetch('/data');
+                    const response = await fetch(url);
                     const data = await response.json();
-                    fgDataPoints1 = data.fgDataPoints1 || [];
-                    fgDataPoints2 = data.fgDataPoints2 || [];
-    
-                    console.log('Full data fetched:', fgDataPoints1.length, fgDataPoints2.length);
-    
-                    updateChart(chart1, fgDataPoints1, fgSeries1, timeframe1.value);
-                    updateChart(chart2, fgDataPoints2, fgSeries2, timeframe2.value);
+                    const now = Date.now() / 1000;
+                    const estTimestamp = Math.floor(now / 30) * 30;
+                    let numUp = 0, numDown = 0;
+                    for (let coin of coins) {
+                        if (data[coin] && data[coin].usd !== undefined) {
+                            let price = data[coin].usd;
+                            if (prevPrices[coin] !== undefined) {
+                                if (price > prevPrices[coin]) numUp++;
+                                else if (price < prevPrices[coin]) numDown++;
+                            }
+                            prevPrices[coin] = price;
+                        }
+                    }
+                    let fgScore = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].value : 50;
+                    if (numUp > numDown) fgScore = Math.min(100, fgScore + 2);
+                    else if (numDown > numUp) fgScore = Math.max(0, fgScore - 2);
+                    dataPoints.push({ time: estTimestamp, value: fgScore });
+                    localStorage.setItem(fgScoreKey, JSON.stringify(dataPoints));
+                    updateChart(chart, dataPoints, seriesArray, chart === chart1 ? currentTimeFrame1 : currentTimeFrame2);
                 } catch (error) {
-                    console.error('Error fetching initial data:', error);
+                    console.error('Error fetching real-time data from CoinGecko:', error);
                 }
             }
     
-            const ws = new WebSocket(`wss://${window.location.host}`);
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                fgDataPoints1 = data.fgDataPoints1 || [];
-                fgDataPoints2 = data.fgDataPoints2 || [];
-                updateChart(chart1, fgDataPoints1, fgSeries1, timeframe1.value);
-                updateChart(chart2, fgDataPoints2, fgSeries2, timeframe2.value);
-            };
-            ws.onopen = () => console.log('WebSocket connected');
-            ws.onerror = (error) => console.error('WebSocket error:', error);
-            ws.onclose = () => console.log('WebSocket closed');
+            // Initialize Charts After Historical Data is Fetched
+            async function initializeCharts() {
+                console.log("Starting historical data fetch...");
+                await Promise.all([
+                    fetchHistoricalData(chart1, coins1, fgDataPoints1, fgSeries1, 1),
+                    fetchHistoricalData(chart2, coins2, fgDataPoints2, fgSeries2, 1)
+                ]);
     
-            timeframe1.addEventListener('change', () => updateChart(chart1, fgDataPoints1, fgSeries1, timeframe1.value));
-            timeframe2.addEventListener('change', () => updateChart(chart2, fgDataPoints2, fgSeries2, timeframe2.value));
+                // Only set initial series if data is present
+                if (fgDataPoints1.length > 0) {
+                    const initialSeries1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
+                    fgSeries1.push({ series: initialSeries1, color: '#00ff00' });
+                    initialSeries1.setData(fgDataPoints1);
+                    chart1.timeScale().fitContent();
+                }
     
-            await fetchInitialData();
+                if (fgDataPoints2.length > 0) {
+                    const initialSeries2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
+                    fgSeries2.push({ series: initialSeries2, color: '#00ff00' });
+                    initialSeries2.setData(fgDataPoints2);
+                    chart2.timeScale().fitContent();
+                }
+    
+                createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
+                createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
+    
+                // Start real-time updates
+                setInterval(() => fetchCryptoData(chart1, coins1, fgDataPoints1, fgSeries1, prevPrices1, 'fgDataPoints1'), 30000);
+                setInterval(() => fetchCryptoData(chart2, coins2, fgDataPoints2, fgSeries2, prevPrices2, 'fgDataPoints2'), 30000);
+                fetchCryptoData(chart1, coins1, fgDataPoints1, fgSeries1, prevPrices1, 'fgDataPoints1');
+                fetchCryptoData(chart2, coins2, fgDataPoints2, fgSeries2, prevPrices2, 'fgDataPoints2');
+            }
+    
+            // Start the initialization
+            initializeCharts();
     
             function resizeCharts() {
                 chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
@@ -983,7 +1068,7 @@
             const audio = document.getElementById('background-audio');
             const audioToggleButton = document.getElementById('audio-toggle');
             audio.play().catch(error => {
-                console.log("Autoplay prevented:", error);
+                console.log("Autoplay was prevented:", error);
                 document.body.addEventListener('click', function startAudio() {
                     audio.play();
                     document.body.removeEventListener('click', startAudio);
