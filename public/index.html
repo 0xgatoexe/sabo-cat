@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Real-Time Crypto Market Trend Data (30-second interval timestamp)</title>
         <meta property="og:title" content="SABO CAT THE MARKET WIZARD" />
-        <link rel="icon" type="image/png" href="sabo-cat-favicon.png">
+        <link rel="icon" type="image/png" href="/sabo-cat-favicon.png">
         <script src="https://unpkg.com/lightweight-charts@3.4.0/dist/lightweight-charts.standalone.production.js"></script>
         <link rel="stylesheet" href="https://use.typekit.net/af/153422/00000000000000007759c419/30/l?subset_id=2&fvd=n3&v=3" type="text/css">
         <style>
@@ -59,12 +59,11 @@
             outline: none;
         }
 
-        /* Desktop default offsets */
-        #matrix-image img:first-child { /* sabo-cat-transparency.png */
+        #matrix-image img:first-child {
             margin-top: var(--transparency-vertical-offset, 0px);
             margin-left: var(--transparency-horizontal-offset, 50px);
         }
-        #matrix-image img:last-child { /* sabo-cat-staff.png */
+        #matrix-image img:last-child {
             margin-top: var(--staff-vertical-offset, 0px);
             margin-left: var(--staff-horizontal-offset, -183px);
         }
@@ -131,11 +130,11 @@
         .ca-button, .buy-button, .manifesto-button, 
         .audio-toggle-button, .counter-button {
             font-family: 'main', sans-serif;
-            font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.3rem);
             color: #00ff00;
-            background: transparent;
-            border: 1px solid #00ff00;
-            padding: 0.3rem 0.6rem;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            padding: 0.4rem 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.1rem;
             text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
@@ -145,7 +144,7 @@
         .ca-button:hover, .buy-button:hover, 
         .manifesto-button:hover, .audio-toggle-button:hover, 
         .counter-button:hover {
-            background: rgba(0, 255, 0, 0.1);
+            background: rgba(0, 255, 0, 0.2);
             text-shadow: 0 0 10px rgba(0, 255, 0, 1);
         }
 
@@ -238,25 +237,25 @@
             background: black;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Distribute space evenly */
+            justify-content: space-between;
             align-items: center;
-            padding: 0.3rem 0; /* Reduced padding from 0.5rem to 0.3rem to fit larger charts */
+            padding: 0.3rem 0;
             box-sizing: border-box;
         }
 
         .chart-container {
             width: 90%;
-            height: 50%; /* Increased from 42% to 50% (approximately 20% increase) */
-            background-color: #1a1a1a; /* Match chart background */
+            height: 50%;
+            background-color: #1a1a1a;
             position: relative;
-            border: 1px solid #00ff00; /* Green border to tie into theme */
-            border-radius: 5px; /* Slight rounding for modern look */
+            border: 1px solid #00ff00;
+            border-radius: 5px;
         }
 
         h2 {
             color: white;
             text-align: center;
-            margin: 0.2rem 0; /* Reduced from 0.3rem to 0.2rem to minimize gaps */
+            margin: 0.2rem 0;
             font-family: 'proxima-nova', sans-serif;
             font-weight: 300;
             font-size: clamp(0.9rem, 1.8vw, 1.3rem);
@@ -438,10 +437,9 @@
             transition: transform 0.3s ease;
         }
         .bottom-right-container a:hover {
-            transform: scale(1.05); /* Slight scale effect on hover */
+            transform: scale(1.05);
         }
 
-        /* Mobile-specific adjustments */
         @media (max-width: 768px) {
             #matrix-image {
                 flex-direction: column;
@@ -476,10 +474,10 @@
                 margin: 0.5rem 0;
             }
             .charts-wrapper {
-                height: 70vh; /* Reduced further for mobile */
+                height: 70vh;
             }
             .chart-container {
-                height: 48%; /* Slightly less than 50% to fit within 70vh on mobile */
+                height: 48%;
             }
             h2 {
                 font-size: clamp(0.7rem, 1.6vw, 1rem);
@@ -506,80 +504,66 @@
             }
         }
 
-        /* Landscape mode adjustments for mobile */
         @media (orientation: landscape) and (max-height: 500px) {
             #matrix-container {
                 height: 40vh;
                 max-height: 300px;
             }
-
             #matrix-image {
                 flex-direction: row;
                 gap: 5px;
                 width: 80%;
                 max-width: 400px;
             }
-
             #matrix-image img {
                 width: 40%;
                 max-width: 120px;
             }
-
             #matrix-image img:first-child {
                 margin-top: 0;
                 margin-left: 0;
             }
-
             #matrix-image img:last-child {
                 margin-top: 0;
                 margin-left: 0;
             }
-
             #logo {
                 top: 0.3rem;
                 left: 0.3rem;
             }
-
             #logo img {
                 height: clamp(2rem, 15vw, 4rem);
             }
-
             #logo h1 {
                 font-size: clamp(0.8rem, 3vw, 1.2rem);
             }
-
             .bottom-left-buttons {
                 bottom: 0.5rem;
                 width: 90%;
                 gap: 0.3rem;
             }
-
             .ca-button, .buy-button, .manifesto-button, 
             .audio-toggle-button, .counter-button {
-                font-size: clamp(0.6rem, 2vw, 1rem);
-                padding: 0.2rem 0.4rem;
+                font-size: clamp(0.8rem, 2vw, 1.2rem);
+                padding: 0.3rem 0.6rem;
             }
-
             .bottom-right-images img {
                 height: clamp(20px, 8vw, 40px);
             }
-
             .social-links img {
                 height: clamp(20px, 6vw, 30px);
             }
-
             .bottom-right-container img#sabo-labs {
                 height: clamp(50px, 12vw, 90px);
             }
             .bottom-right-container img#mail-logo {
                 height: clamp(25px, 6vw, 40px);
             }
-
             .charts-wrapper {
-                height: 75vh; /* Adjusted for landscape */
+                height: 75vh;
             }
             .chart-container {
-                height: 48%; /* Slightly less than 50% for landscape */
+                height: 48%;
             }
             h2 {
                 font-size: clamp(0.6rem, 1.4vw, 0.9rem);
@@ -590,18 +574,18 @@
 </head>
 <body>
     <audio id="background-audio" autoplay loop>
-        <source src="background-song.mp3" type="audio/mpeg">
+        <source src="/background-song.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
     <div id="matrix-container">
         <canvas id="canvas"></canvas>
         <div id="matrix-image">
-            <img src="sabo-cat-transparency.png" alt="sabo cat transparency">
-            <img src="sabo-cat-staff.png" alt="sabo cat staff">
+            <img src="/sabo-cat-transparency.png" alt="sabo cat transparency">
+            <img src="/sabo-cat-staff.png" alt="sabo cat staff">
         </div>
         <div id="logo">
-            <img src="logo.png" alt="Sabo Cat Logo" id="logo-image">
+            <img src="/logo.png" alt="Sabo Cat Logo" id="logo-image">
             <h1>SABO CAT MARKET WIZARD</h1>
         </div>
         <div class="bottom-right-images">
@@ -618,10 +602,10 @@
         </div>
         <div class="social-links">
             <a href="https://t.me/sabocatportal" target="_blank">
-                <img src="images/telegramlogo.png" alt="Telegram">
+                <img src="/images/telegramlogo.png" alt="Telegram">
             </a>
             <a href="https://x.com/sabocatai" target="_blank">
-                <img src="images/xlogo.png" alt="X">
+                <img src="/images/xlogo.png" alt="X">
             </a>
         </div>
     </div>
@@ -643,74 +627,74 @@
             </div>
         </div>
     </div>
-    <img src="images/sabo-cat-twitter-banner.png" alt="Sabo Cat Twitter Banner" class="twitter-banner">
+    <img src="/images/sabo-cat-twitter-banner.png" alt="Sabo Cat Twitter Banner" class="twitter-banner">
     <div class="solana-marquee">
         <div class="solana-marquee-content">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
         </div>
     </div>
     <div class="image-gallery">
         <div class="gallery-row">
             <div class="gallery-image">
-                <img src="images/classroom-sabo.png" alt="Classroom Sabo">
+                <img src="/images/classroom-sabo.png" alt="Classroom Sabo">
                 <div class="popup">
-                    <img src="images/classroom-sabo.png" alt="Classroom Sabo Enlarged">
+                    <img src="/images/classroom-sabo.png" alt="Classroom Sabo Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
             <div class="gallery-image">
-                <img src="images/sabo-cat-coder.png" alt="Sabo Cat Coder">
+                <img src="/images/sabo-cat-coder.png" alt="Sabo Cat Coder">
                 <div class="popup">
-                    <img src="images/sabo-cat-coder.png" alt="Sabo Cat Coder Enlarged">
+                    <img src="/images/sabo-cat-coder.png" alt="Sabo Cat Coder Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
             <div class="gallery-image">
-                <img src="images/sabo-cat-glad.png" alt="Sabo Cat Glad">
+                <img src="/images/sabo-cat-glad.png" alt="Sabo Cat Glad">
                 <div class="popup">
-                    <img src="images/sabo-cat-glad.png" alt="Sabo Cat Glad Enlarged">
+                    <img src="/images/sabo-cat-glad.png" alt="Sabo Cat Glad Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
         </div>
         <div class="gallery-row">
             <div class="gallery-image">
-                <img src="images/sabo-cat-time-square.png" alt="Sabo Cat Time Square">
+                <img src="/images/sabo-cat-time-square.png" alt="Sabo Cat Time Square">
                 <div class="popup">
-                    <img src="images/sabo-cat-time-square.png" alt="Sabo Cat Time Square Enlarged">
+                    <img src="/images/sabo-cat-time-square.png" alt="Sabo Cat Time Square Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
             <div class="gallery-image">
-                <img src="images/sabo-cat-wizard.png" alt="Sabo Cat Wizard">
+                <img src="/images/sabo-cat-wizard.png" alt="Sabo Cat Wizard">
                 <div class="popup">
-                    <img src="images/sabo-cat-wizard.png" alt="Sabo Cat Wizard Enlarged">
+                    <img src="/images/sabo-cat-wizard.png" alt="Sabo Cat Wizard Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
             <div class="gallery-image">
-                <img src="images/sabo-paris.png" alt="Sabo Paris">
+                <img src="/images/sabo-paris.png" alt="Sabo Paris">
                 <div class="popup">
-                    <img src="images/sabo-paris.png" alt="Sabo Paris Enlarged">
+                    <img src="/images/sabo-paris.png" alt="Sabo Paris Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
@@ -736,11 +720,11 @@
     </section>
     <div class="bottom-right-container">
         <div class="mail-container">
-            <img src="images/mail-logo.png" alt="Mail" id="mail-logo">
+            <img src="/images/mail-logo.png" alt="Mail" id="mail-logo">
             <div class="mail-copied-message" id="mail-copied-message">Copied</div>
         </div>
         <a href="https://x.com/sabolabs" target="_blank">
-            <img src="images/sabo-labs.png" alt="Sabo Labs" id="sabo-labs">
+            <img src="/images/sabo-labs.png" alt="Sabo Labs" id="sabo-labs">
         </a>
     </div>
 
@@ -776,19 +760,18 @@
             for(let i = 0; i < col; i++) arr[i] = 1;
         });
     
-        window.addEventListener('load', function () {
+        window.addEventListener('load', async function () {
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('portrait')
                     .then(() => console.log('Orientation locked to portrait'))
                     .catch(err => console.error('Failed to lock orientation:', err));
             } else {
-                console.warn('Screen Orientation API not supported in this browser');
+                console.warn('Screen Orientation API not supported');
             }
     
             const chart1Container = document.getElementById('chart1');
             const chart2Container = document.getElementById('chart2');
     
-            // Chart 1 Initialization
             const chart1 = LightweightCharts.createChart(chart1Container, {
                 width: chart1Container.offsetWidth,
                 height: chart1Container.offsetHeight,
@@ -808,7 +791,6 @@
                 handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
             });
     
-            // Chart 2 Initialization
             const chart2 = LightweightCharts.createChart(chart2Container, {
                 width: chart2Container.offsetWidth,
                 height: chart2Container.offsetHeight,
@@ -828,20 +810,100 @@
                 handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
             });
     
-            // Chart Data Management
             let fgSeries1 = [], fgSeries2 = [];
-            let fgDataPoints1 = JSON.parse(localStorage.getItem('fgDataPoints1')) || [];
-            let fgDataPoints2 = JSON.parse(localStorage.getItem('fgDataPoints2')) || [];
-            let prevPrices1 = {}, prevPrices2 = {};
-            const coins1 = ["solana", "ai16z", "fartcoin", "zerebro", "goat", "griffain", "tao", "virtual", "act", "render", "arc"];
-            const coins2 = ["bitcoin", "ethereum", "ripple", "binancecoin", "solana", "dogecoin"];
+            let fgDataPoints1 = [];
+            let fgDataPoints2 = [];
     
-            // Time Frame Management
             const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
             let currentTimeFrame1 = 'ALL';
             let currentTimeFrame2 = 'ALL';
     
-            // Add Time Frame Dropdowns
+            function updateChart(chart, dataPoints, seriesArray, timeFrame) {
+                const now = Math.floor(Date.now() / 1000);
+                const cutoff = now - timeFrames[timeFrame];
+                const filteredData = dataPoints.filter(point => point.time >= cutoff);
+
+                if (filteredData.length === 0) {
+                    seriesArray.forEach(s => chart.removeSeries(s.series));
+                    seriesArray.length = 0;
+                    return;
+                }
+
+                if (seriesArray.length === 0) {
+                    const initialSeries = chart.addLineSeries({
+                        color: '#00ff00', // Default green
+                        lineWidth: 2,
+                        priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
+                    });
+                    initialSeries.setData([filteredData[0]]);
+                    seriesArray.push({ series: initialSeries, color: '#00ff00' });
+                }
+
+                const lastSeries = seriesArray[seriesArray.length - 1].series;
+                const lastData = lastSeries.data().slice(-1)[0] || filteredData[0];
+                const newData = filteredData.slice(-1)[0];
+
+                if (newData.time > lastData.time) {
+                    const color = newData.value > lastData.value ? '#00ff00' : '#ff0000';
+                    if (newData.value !== lastData.value) {
+                        // Create a new series for a value change
+                        const newSeries = chart.addLineSeries({
+                            color: color,
+                            lineWidth: 2,
+                            priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
+                        });
+                        newSeries.setData([lastData, newData]);
+                        seriesArray.push({ series: newSeries, color });
+                    } else {
+                        // Extend the last series if no value change
+                        lastSeries.update(newData);
+                    }
+                }
+
+                chart.timeScale().fitContent();
+            }
+    
+            async function fetchInitialData() {
+                try {
+                    const response = await fetch('/data');
+                    const data = await response.json();
+                    fgDataPoints1 = data.fgDataPoints1 || [];
+                    fgDataPoints2 = data.fgDataPoints2 || [];
+                    console.log('Initial data fetched:', fgDataPoints1.length, fgDataPoints2.length);
+                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
+                    createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
+                    createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
+                } catch (error) {
+                    console.error('Error fetching initial data:', error);
+                    // Fallback to dummy data
+                    fgDataPoints1 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 100 }];
+                    fgDataPoints2 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 50 }];
+                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
+                    createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
+                    createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
+                }
+            }
+    
+            const wsUrl = window.location.protocol === 'https:' ? 'wss://' + window.location.host : 'ws://' + window.location.host;
+            const ws = new WebSocket(wsUrl);
+            ws.onmessage = (event) => { // Fix missing onmessage handler
+                const data = JSON.parse(event.data);
+                if (data.fgDataPoints1 && data.fgDataPoints1.length > 0) {
+                    fgDataPoints1 = data.fgDataPoints1; // Replace instead of push to avoid duplicates
+                }
+                if (data.fgDataPoints2 && data.fgDataPoints2.length > 0) {
+                    fgDataPoints2 = data.fgDataPoints2;
+                }
+                console.log('New data received:', data);
+                updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
+            };
+            ws.onopen = () => console.log('WebSocket connected');
+            ws.onerror = (error) => console.error('WebSocket error:', error);
+            ws.onclose = () => console.log('WebSocket closed');
+    
             function createTimeFrameSelector(chartNum, chart, dataPoints, seriesArray) {
                 const container = document.getElementById(`chart${chartNum}`).parentElement;
                 const selector = document.createElement('select');
@@ -870,139 +932,7 @@
                 });
             }
     
-            function updateChart(chart, dataPoints, seriesArray, timeFrame) {
-                const now = Math.floor(Date.now() / 1000);
-                const cutoff = now - timeFrames[timeFrame];
-                const filteredData = dataPoints.filter(point => point.time >= cutoff);
-    
-                seriesArray.forEach(s => chart.removeSeries(s.series));
-                seriesArray.length = 0;
-    
-                let currentSeries = null;
-                for (let i = 0; i < filteredData.length; i++) {
-                    if (i === 0 || filteredData[i].value !== filteredData[i - 1].value) {
-                        const color = i > 0 && filteredData[i].value > filteredData[i - 1].value ? '#00ff00' : '#ff0000';
-                        currentSeries = chart.addLineSeries({
-                            color: color,
-                            lineWidth: 2,
-                            priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
-                        });
-                        seriesArray.push({ series: currentSeries, color: color });
-                    }
-                    currentSeries.setData(filteredData.slice(0, i + 1));
-                }
-                chart.timeScale().fitContent();
-            }
-    
-            // Initial Chart Setup (Empty until historical data loads)
-            const initialSeries1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-            fgSeries1.push({ series: initialSeries1, color: '#00ff00' });
-            initialSeries1.setData(fgDataPoints1);
-            chart1.timeScale().fitContent();
-    
-            const initialSeries2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-            fgSeries2.push({ series: initialSeries2, color: '#00ff00' });
-            initialSeries2.setData(fgDataPoints2);
-            chart2.timeScale().fitContent();
-    
-            createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
-            createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
-    
-            // Fetch Historical Data for Multiple Coins
-            async function fetchHistoricalData(chart, coins, dataPoints, seriesArray, days = 1) {
-                const now = Math.floor(Date.now() / 1000);
-                const historicalPoints = [];
-                const interval = 1800; // 30 minutes in seconds
-                const pointsCount = Math.floor((days * 86400) / interval);
-    
-                // Filter valid coins (some may not exist in CoinGecko)
-                const validCoins = coins.filter(coin => ["solana", "bitcoin", "ethereum", "ripple", "binancecoin", "dogecoin", "render", "bittensor"].includes(coin)); // Add valid IDs as needed
-                if (validCoins.length === 0) {
-                    console.error("No valid coins for historical data");
-                    return;
-                }
-    
-                // Fetch historical data for each coin with delay to avoid rate limits
-                const priceHistories = await Promise.all(validCoins.map(async (coin, idx) => {
-                    await new Promise(resolve => setTimeout(resolve, idx * 1000)); // 1-second delay between requests
-                    try {
-                        const url = `https://api.coingecko.com/api/v3/coins/${coin}/market_chart?vs_currency=usd&days=${days}&interval=30m`;
-                        const response = await fetch(url);
-                        const data = await response.json();
-                        return data.prices.map(([time, price]) => ({ time: Math.floor(time / 1000), price }));
-                    } catch (error) {
-                        console.error(`Error fetching historical data for ${coin}:`, error);
-                        return [];
-                    }
-                }));
-    
-                // Aggregate into trend scores
-                for (let i = 0; i < pointsCount; i++) {
-                    const timestamp = now - (pointsCount - 1 - i) * interval;
-                    let numUp = 0, numDown = 0;
-                    const prevPrices = {};
-    
-                    validCoins.forEach((coin, idx) => {
-                        const history = priceHistories[idx];
-                        const current = history.find(p => p.time >= timestamp - 900 && p.time <= timestamp + 900);
-                        if (current && prevPrices[coin] !== undefined) {
-                            if (current.price > prevPrices[coin]) numUp++;
-                            else if (current.price < prevPrices[coin]) numDown++;
-                        }
-                        if (current) prevPrices[coin] = current.price;
-                    });
-    
-                    let score = historicalPoints.length > 0 ? historicalPoints[historicalPoints.length - 1].value : 50;
-                    if (numUp > numDown) score = Math.min(100, score + 2);
-                    else if (numDown > numUp) score = Math.max(0, score - 2);
-                    historicalPoints.push({ time: timestamp, value: score });
-                }
-    
-                dataPoints.length = 0;
-                dataPoints.push(...historicalPoints);
-                localStorage.setItem(chart === chart1 ? 'fgDataPoints1' : 'fgDataPoints2', JSON.stringify(dataPoints));
-                updateChart(chart, dataPoints, seriesArray, chart === chart1 ? currentTimeFrame1 : currentTimeFrame2);
-            }
-    
-            // Fetch and Update Real-Time Data
-            async function fetchCryptoData(chart, coins, dataPoints, seriesArray, prevPrices, fgScoreKey) {
-                const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(",")}&vs_currencies=usd`;
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    const now = Date.now() / 1000;
-                    const estTimestamp = Math.floor(now / 30) * 30;
-                    let numUp = 0, numDown = 0;
-                    for (let coin of coins) {
-                        if (data[coin] && data[coin].usd !== undefined) {
-                            let price = data[coin].usd;
-                            if (prevPrices[coin] !== undefined) {
-                                if (price > prevPrices[coin]) numUp++;
-                                else if (price < prevPrices[coin]) numDown++;
-                            }
-                            prevPrices[coin] = price;
-                        }
-                    }
-                    let fgScore = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].value : 50; // Default to 50 if no data
-                    if (numUp > numDown) fgScore = Math.min(100, fgScore + 2);
-                    else if (numDown > numUp) fgScore = Math.max(0, fgScore - 2);
-                    dataPoints.push({ time: estTimestamp, value: fgScore });
-                    localStorage.setItem(fgScoreKey, JSON.stringify(dataPoints));
-                    updateChart(chart, dataPoints, seriesArray, chart === chart1 ? currentTimeFrame1 : currentTimeFrame2);
-                } catch (error) {
-                    console.error('Error fetching data from CoinGecko:', error);
-                }
-            }
-    
-            // Load historical data on page load (1 day of data)
-            fetchHistoricalData(chart1, coins1, fgDataPoints1, fgSeries1, 1);
-            fetchHistoricalData(chart2, coins2, fgDataPoints2, fgSeries2, 1);
-    
-            // Start real-time updates
-            setInterval(() => fetchCryptoData(chart1, coins1, fgDataPoints1, fgSeries1, prevPrices1, 'fgDataPoints1'), 30000);
-            setInterval(() => fetchCryptoData(chart2, coins2, fgDataPoints2, fgSeries2, prevPrices2, 'fgDataPoints2'), 30000);
-            fetchCryptoData(chart1, coins1, fgDataPoints1, fgSeries1, prevPrices1, 'fgDataPoints1');
-            fetchCryptoData(chart2, coins2, fgDataPoints2, fgSeries2, prevPrices2, 'fgDataPoints2');
+            await fetchInitialData();
     
             function resizeCharts() {
                 chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
@@ -1057,7 +987,7 @@
             const audio = document.getElementById('background-audio');
             const audioToggleButton = document.getElementById('audio-toggle');
             audio.play().catch(error => {
-                console.log("Autoplay was prevented:", error);
+                console.log("Autoplay prevented:", error);
                 document.body.addEventListener('click', function startAudio() {
                     audio.play();
                     document.body.removeEventListener('click', startAudio);
