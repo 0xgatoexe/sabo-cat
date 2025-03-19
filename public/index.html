@@ -59,12 +59,11 @@
             outline: none;
         }
 
-        /* Desktop default offsets */
-        #matrix-image img:first-child { /* sabo-cat-transparency.png */
+        #matrix-image img:first-child {
             margin-top: var(--transparency-vertical-offset, 0px);
             margin-left: var(--transparency-horizontal-offset, 50px);
         }
-        #matrix-image img:last-child { /* sabo-cat-staff.png */
+        #matrix-image img:last-child {
             margin-top: var(--staff-vertical-offset, 0px);
             margin-left: var(--staff-horizontal-offset, -183px);
         }
@@ -131,11 +130,11 @@
         .ca-button, .buy-button, .manifesto-button, 
         .audio-toggle-button, .counter-button {
             font-family: 'main', sans-serif;
-            font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.3rem);
             color: #00ff00;
-            background: transparent;
-            border: 1px solid #00ff00;
-            padding: 0.3rem 0.6rem;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            padding: 0.4rem 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.1rem;
             text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
@@ -145,7 +144,7 @@
         .ca-button:hover, .buy-button:hover, 
         .manifesto-button:hover, .audio-toggle-button:hover, 
         .counter-button:hover {
-            background: rgba(0, 255, 0, 0.1);
+            background: rgba(0, 255, 0, 0.2);
             text-shadow: 0 0 10px rgba(0, 255, 0, 1);
         }
 
@@ -238,25 +237,25 @@
             background: black;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Distribute space evenly */
+            justify-content: space-between;
             align-items: center;
-            padding: 0.3rem 0; /* Reduced padding from 0.5rem to 0.3rem to fit larger charts */
+            padding: 0.3rem 0;
             box-sizing: border-box;
         }
 
         .chart-container {
             width: 90%;
-            height: 50%; /* Increased from 42% to 50% (approximately 20% increase) */
-            background-color: #1a1a1a; /* Match chart background */
+            height: 50%;
+            background-color: #1a1a1a;
             position: relative;
-            border: 1px solid #00ff00; /* Green border to tie into theme */
-            border-radius: 5px; /* Slight rounding for modern look */
+            border: 1px solid #00ff00;
+            border-radius: 5px;
         }
 
         h2 {
             color: white;
             text-align: center;
-            margin: 0.2rem 0; /* Reduced from 0.3rem to 0.2rem to minimize gaps */
+            margin: 0.2rem 0;
             font-family: 'proxima-nova', sans-serif;
             font-weight: 300;
             font-size: clamp(0.9rem, 1.8vw, 1.3rem);
@@ -438,10 +437,9 @@
             transition: transform 0.3s ease;
         }
         .bottom-right-container a:hover {
-            transform: scale(1.05); /* Slight scale effect on hover */
+            transform: scale(1.05);
         }
 
-        /* Mobile-specific adjustments */
         @media (max-width: 768px) {
             #matrix-image {
                 flex-direction: column;
@@ -476,10 +474,10 @@
                 margin: 0.5rem 0;
             }
             .charts-wrapper {
-                height: 70vh; /* Reduced further for mobile */
+                height: 70vh;
             }
             .chart-container {
-                height: 48%; /* Slightly less than 50% to fit within 70vh on mobile */
+                height: 48%;
             }
             h2 {
                 font-size: clamp(0.7rem, 1.6vw, 1rem);
@@ -506,80 +504,66 @@
             }
         }
 
-        /* Landscape mode adjustments for mobile */
         @media (orientation: landscape) and (max-height: 500px) {
             #matrix-container {
                 height: 40vh;
                 max-height: 300px;
             }
-
             #matrix-image {
                 flex-direction: row;
                 gap: 5px;
                 width: 80%;
                 max-width: 400px;
             }
-
             #matrix-image img {
                 width: 40%;
                 max-width: 120px;
             }
-
             #matrix-image img:first-child {
                 margin-top: 0;
                 margin-left: 0;
             }
-
             #matrix-image img:last-child {
                 margin-top: 0;
                 margin-left: 0;
             }
-
             #logo {
                 top: 0.3rem;
                 left: 0.3rem;
             }
-
             #logo img {
                 height: clamp(2rem, 15vw, 4rem);
             }
-
             #logo h1 {
                 font-size: clamp(0.8rem, 3vw, 1.2rem);
             }
-
             .bottom-left-buttons {
                 bottom: 0.5rem;
                 width: 90%;
                 gap: 0.3rem;
             }
-
             .ca-button, .buy-button, .manifesto-button, 
             .audio-toggle-button, .counter-button {
-                font-size: clamp(0.6rem, 2vw, 1rem);
-                padding: 0.2rem 0.4rem;
+                font-size: clamp(0.8rem, 2vw, 1.2rem);
+                padding: 0.3rem 0.6rem;
             }
-
             .bottom-right-images img {
                 height: clamp(20px, 8vw, 40px);
             }
-
             .social-links img {
                 height: clamp(20px, 6vw, 30px);
             }
-
             .bottom-right-container img#sabo-labs {
                 height: clamp(50px, 12vw, 90px);
             }
             .bottom-right-container img#mail-logo {
                 height: clamp(25px, 6vw, 40px);
             }
-
             .charts-wrapper {
-                height: 75vh; /* Adjusted for landscape */
+                height: 75vh;
             }
             .chart-container {
-                height: 48%; /* Slightly less than 50% for landscape */
+                height: 48%;
             }
             h2 {
                 font-size: clamp(0.6rem, 1.4vw, 0.9rem);
@@ -776,241 +760,178 @@
             for(let i = 0; i < col; i++) arr[i] = 1;
         });
     
-        window.addEventListener('load', function () {
+        window.addEventListener('load', async function () {
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('portrait')
-                    .then(() => {
-                        console.log('Orientation locked to portrait');
-                    })
-                    .catch((err) => {
-                        console.error('Failed to lock orientation:', err);
-                    });
+                    .then(() => console.log('Orientation locked to portrait'))
+                    .catch(err => console.error('Failed to lock orientation:', err));
             } else {
-                console.warn('Screen Orientation API not supported in this browser');
+                console.warn('Screen Orientation API not supported');
             }
     
             const chart1Container = document.getElementById('chart1');
             const chart2Container = document.getElementById('chart2');
     
-            // Chart 1 Initialization
             const chart1 = LightweightCharts.createChart(chart1Container, {
                 width: chart1Container.offsetWidth,
                 height: chart1Container.offsetHeight,
-                layout: {
-                    backgroundColor: '#1a1a1a',
-                    textColor: '#ffffff',
-                },
-                grid: {
-                    vertLines: {
-                        color: 'rgba(255, 255, 255, 0.1)',
-                    },
-                    horzLines: {
-                        color: 'rgba(255, 255, 255, 0.1)',
-                    },
-                },
+                layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
+                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
                 timeScale: {
                     timeVisible: true,
                     secondsVisible: true,
                     borderColor: '#00ff00',
                     tickMarkFormatter: (time) => {
                         const date = new Date(time * 1000);
-                        return date.toLocaleString('en-US', {
-                            timeZone: 'America/New_York',
-                            hour12: false,
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                        });
+                        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     },
                 },
-                rightPriceScale: {
-                    borderColor: '#00ff00',
-                    scaleMargins: {
-                        top: 0.1,
-                        bottom: 0.1,
-                    },
-                },
-                handleScroll: {
-                    mouseWheel: true,
-                    pressedMouseMove: true,
-                },
-                handleScale: {
-                    axisPressedMouseMove: true,
-                    mouseWheel: true,
-                    pinch: true,
-                },
+                rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
+                handleScroll: { mouseWheel: true, pressedMouseMove: true },
+                handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
             });
     
-            let fgSeries1 = [];
-            let fgDataPoints1 = [
-                { time: Math.floor(Date.now() / 1000), value: 50 }
-            ];
-            let prevPrices1 = {};
-            let fgScore1 = 50;
-            const coins1 = ["solana", "ai16z", "fartcoin", "zerebro", "goat", "griffain", "tao", "virtual", "act", "render", "arc"];
-    
-            let initialSeries1 = chart1.addLineSeries({
-                color: '#00ff00',
-                lineWidth: 2,
-                priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
-            });
-            initialSeries1.setData(fgDataPoints1);
-            fgSeries1.push({ series: initialSeries1, color: "#00ff00" });
-    
-            // Initially fit all data
-            chart1.timeScale().fitContent();
-    
-            async function fetchCryptoData1() {
-                const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins1.join(",")}&vs_currencies=usd`;
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    const now = Date.now() / 1000;
-                    const estTimestamp = Math.floor(now / 30) * 30; // Align to 30-second intervals
-                    let numUp = 0, numDown = 0;
-                    for (let coin of coins1) {
-                        if (data[coin] && data[coin].usd !== undefined) {
-                            let price = data[coin].usd;
-                            if (prevPrices1[coin] !== undefined) {
-                                if (price > prevPrices1[coin]) numUp++;
-                                else if (price < prevPrices1[coin]) numDown++;
-                            }
-                            prevPrices1[coin] = price;
-                        }
-                    }
-                    let previousFgScore = fgScore1;
-                    if (numUp > numDown) fgScore1 = Math.min(100, fgScore1 + 2);
-                    else if (numDown > numUp) fgScore1 = Math.max(0, fgScore1 - 2);
-                    fgDataPoints1.push({ time: estTimestamp, value: fgScore1 });
-                    let newColor = fgScore1 > previousFgScore ? "#00ff00" : "#ff0000";
-                    if (fgSeries1.length === 0 || fgSeries1[fgSeries1.length - 1].color !== newColor) {
-                        let newSeries = chart1.addLineSeries({
-                            color: newColor,
-                            lineWidth: 2,
-                            priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
-                        });
-                        fgSeries1.push({ series: newSeries, color: newColor });
-                    }
-                    fgSeries1[fgSeries1.length - 1].series.setData(fgDataPoints1);
-    
-                    // Fit all data horizontally after each update
-                    chart1.timeScale().fitContent();
-                } catch (error) {
-                    console.error('Error fetching data from CoinGecko:', error);
-                }
-            }
-            setInterval(fetchCryptoData1, 30000);
-            fetchCryptoData1();
-    
-            // Chart 2 Initialization
             const chart2 = LightweightCharts.createChart(chart2Container, {
                 width: chart2Container.offsetWidth,
                 height: chart2Container.offsetHeight,
-                layout: {
-                    backgroundColor: '#1a1a1a',
-                    textColor: '#ffffff',
-                },
-                grid: {
-                    vertLines: {
-                        color: 'rgba(255, 255, 255, 0.1)',
-                    },
-                    horzLines: {
-                        color: 'rgba(255, 255, 255, 0.1)',
-                    },
-                },
+                layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
+                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
                 timeScale: {
                     timeVisible: true,
                     secondsVisible: true,
                     borderColor: '#00ff00',
                     tickMarkFormatter: (time) => {
                         const date = new Date(time * 1000);
-                        return date.toLocaleString('en-US', {
-                            timeZone: 'America/New_York',
-                            hour12: false,
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                        });
+                        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     },
                 },
-                rightPriceScale: {
-                    borderColor: '#00ff00',
-                    scaleMargins: {
-                        top: 0.1,
-                        bottom: 0.1,
-                    },
-                },
-                handleScroll: {
-                    mouseWheel: true,
-                    pressedMouseMove: true,
-                },
-                handleScale: {
-                    axisPressedMouseMove: true,
-                    mouseWheel: true,
-                    pinch: true,
-                },
+                rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
+                handleScroll: { mouseWheel: true, pressedMouseMove: true },
+                handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
             });
     
-            let fgSeries2 = [];
-            let fgDataPoints2 = [
-                { time: Math.floor(Date.now() / 1000), value: 50 }
-            ];
-            let prevPrices2 = {};
-            let fgScore2 = 50;
-            const coins2 = ["bitcoin", "ethereum", "ripple", "binancecoin", "solana", "dogecoin"];
+            let fgSeries1 = [], fgSeries2 = [];
+            let fgDataPoints1 = [];
+            let fgDataPoints2 = [];
     
-            let initialSeries2 = chart2.addLineSeries({
-                color: '#00ff00',
+            const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
+            let currentTimeFrame1 = 'ALL';
+            let currentTimeFrame2 = 'ALL';
+    
+            function updateChart(chart, dataPoints, seriesArray, timeFrame) {
+    const now = Math.floor(Date.now() / 1000);
+    const cutoff = now - timeFrames[timeFrame];
+    const filteredData = dataPoints.filter(point => point.time >= cutoff);
+
+    if (filteredData.length === 0) {
+        seriesArray.forEach(s => chart.removeSeries(s.series));
+        seriesArray.length = 0;
+        return;
+    }
+
+    if (seriesArray.length === 0) {
+        const initialSeries = chart.addLineSeries({
+            color: '#00ff00', // Default green
+            lineWidth: 2,
+            priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
+        });
+        initialSeries.setData([filteredData[0]]);
+        seriesArray.push({ series: initialSeries, color: '#00ff00' });
+    }
+
+    const lastSeries = seriesArray[seriesArray.length - 1].series;
+    const lastData = lastSeries.data().slice(-1)[0] || filteredData[0];
+    const newData = filteredData.slice(-1)[0];
+
+    if (newData.time > lastData.time) {
+        const color = newData.value > lastData.value ? '#00ff00' : '#ff0000';
+        if (newData.value !== lastData.value) {
+            // Create a new series for a value change
+            const newSeries = chart.addLineSeries({
+                color: color,
                 lineWidth: 2,
                 priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
             });
-            initialSeries2.setData(fgDataPoints2);
-            fgSeries2.push({ series: initialSeries2, color: "#00ff00" });
+            newSeries.setData([lastData, newData]);
+            seriesArray.push({ series: newSeries, color });
+        } else {
+            // Extend the last series if no value change
+            lastSeries.update(newData);
+        }
+    }
+
+    chart.timeScale().fitContent();
+}
     
-            // Initially fit all data
-            chart2.timeScale().fitContent();
-    
-            async function fetchCryptoData2() {
-                const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coins2.join(",")}&vs_currencies=usd`;
+            async function fetchInitialData() {
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch('/data');
                     const data = await response.json();
-                    const now = Date.now() / 1000;
-                    const estTimestamp = Math.floor(now / 30) * 30; // Align to 30-second intervals
-                    let numUp = 0, numDown = 0;
-                    for (let coin of coins2) {
-                        if (data[coin] && data[coin].usd !== undefined) {
-                            let price = data[coin].usd;
-                            if (prevPrices2[coin] !== undefined) {
-                                if (price > prevPrices2[coin]) numUp++;
-                                else if (price < prevPrices2[coin]) numDown++;
-                            }
-                            prevPrices2[coin] = price;
-                        }
-                    }
-                    let previousFgScore = fgScore2;
-                    if (numUp > numDown) fgScore2 = Math.min(100, fgScore2 + 2);
-                    else if (numDown > numUp) fgScore2 = Math.max(0, fgScore2 - 2);
-                    fgDataPoints2.push({ time: estTimestamp, value: fgScore2 });
-                    let newColor = fgScore2 > previousFgScore ? "#00ff00" : "#ff0000";
-                    if (fgSeries2.length === 0 || fgSeries2[fgSeries2.length - 1].color !== newColor) {
-                        let newSeries = chart2.addLineSeries({
-                            color: newColor,
-                            lineWidth: 2,
-                            priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
-                        });
-                        fgSeries2.push({ series: newSeries, color: newColor });
-                    }
-                    fgSeries2[fgSeries2.length - 1].series.setData(fgDataPoints2);
-    
-                    // Fit all data horizontally after each update
-                    chart2.timeScale().fitContent();
+                    fgDataPoints1 = data.fgDataPoints1 || [];
+                    fgDataPoints2 = data.fgDataPoints2 || [];
+                    console.log('Initial data fetched:', fgDataPoints1.length, fgDataPoints2.length);
+                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
+                    createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
+                    createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
                 } catch (error) {
-                    console.error('Error fetching data from CoinGecko:', error);
+                    console.error('Error fetching initial data:', error);
+                    // Fallback to dummy data
+                    fgDataPoints1 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 100 }];
+                    fgDataPoints2 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 50 }];
+                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
+                    createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
+                    createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
                 }
             }
-            setInterval(fetchCryptoData2, 30000);
-            fetchCryptoData2();
+    
+            const wsUrl = window.location.protocol === 'https:' ? 'wss://' + window.location.host : 'ws://' + window.location.host;
+            const ws = new WebSocket(wsUrl);
+                const data = JSON.parse(event.data);
+                if (data.fgDataPoints1 && data.fgDataPoints1.length > 0) {
+                    fgDataPoints1 = data.fgDataPoints1; // Replace instead of push to avoid duplicates
+                }
+                if (data.fgDataPoints2 && data.fgDataPoints2.length > 0) {
+                    fgDataPoints2 = data.fgDataPoints2;
+                }
+                console.log('New data received:', data);
+                updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
+            };
+            ws.onopen = () => console.log('WebSocket connected');
+            ws.onerror = (error) => console.error('WebSocket error:', error);
+            ws.onclose = () => console.log('WebSocket closed');
+    
+            function createTimeFrameSelector(chartNum, chart, dataPoints, seriesArray) {
+                const container = document.getElementById(`chart${chartNum}`).parentElement;
+                const selector = document.createElement('select');
+                selector.style.position = 'absolute';
+                selector.style.top = '10px';
+                selector.style.right = '10px';
+                selector.style.background = '#1a1a1a';
+                selector.style.color = '#00ff00';
+                selector.style.border = '1px solid #00ff00';
+                selector.style.padding = '5px';
+                for (const [label] of Object.entries(timeFrames)) {
+                    const option = document.createElement('option');
+                    option.value = label;
+                    option.text = label;
+                    selector.appendChild(option);
+                }
+                selector.value = 'ALL';
+                container.style.position = 'relative';
+                container.appendChild(selector);
+    
+                selector.addEventListener('change', () => {
+                    const timeFrame = selector.value;
+                    if (chartNum === 1) currentTimeFrame1 = timeFrame;
+                    else currentTimeFrame2 = timeFrame;
+                    updateChart(chart, dataPoints, seriesArray, timeFrame);
+                });
+            }
+    
+            await fetchInitialData();
     
             function resizeCharts() {
                 chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
@@ -1024,12 +945,8 @@
             caButton.addEventListener('click', () => {
                 navigator.clipboard.writeText(caString).then(() => {
                     copiedMessage.style.opacity = '1';
-                    setTimeout(() => {
-                        copiedMessage.style.opacity = '0';
-                    }, 1000);
-                }).catch(err => {
-                    console.error('Failed to copy text: ', err);
-                });
+                    setTimeout(() => copiedMessage.style.opacity = '0', 1000);
+                }).catch(err => console.error('Failed to copy text: ', err));
             });
     
             const mailLogo = document.getElementById('mail-logo');
@@ -1038,25 +955,17 @@
             mailLogo.addEventListener('click', () => {
                 navigator.clipboard.writeText(mailString).then(() => {
                     mailCopiedMessage.style.opacity = '1';
-                    setTimeout(() => {
-                        mailCopiedMessage.style.opacity = '0';
-                    }, 1000);
-                }).catch(err => {
-                    console.error('Failed to copy email: ', err);
-                });
+                    setTimeout(() => mailCopiedMessage.style.opacity = '0', 1000);
+                }).catch(err => console.error('Failed to copy email: ', err));
             });
     
             const buyButton = document.querySelector('.buy-button');
             const buyUrl = "https://example.com";
-            buyButton.addEventListener('click', () => {
-                window.open(buyUrl, '_blank');
-            });
+            buyButton.addEventListener('click', () => window.open(buyUrl, '_blank'));
     
             const manifestoButton = document.querySelector('.manifesto-button');
             const manifestoSection = document.getElementById('manifesto');
-            manifestoButton.addEventListener('click', () => {
-                manifestoSection.scrollIntoView({ behavior: 'smooth' });
-            });
+            manifestoButton.addEventListener('click', () => manifestoSection.scrollIntoView({ behavior: 'smooth' }));
     
             const logoImage = document.getElementById('logo-image');
             let isFlipped = false;
@@ -1070,27 +979,19 @@
                 const img = gallery.querySelector('img');
                 const popup = gallery.querySelector('.popup');
                 const closeBtn = gallery.querySelector('.popup-close');
-    
-                img.addEventListener('click', () => {
-                    popup.style.display = 'block';
-                });
-    
-                closeBtn.addEventListener('click', () => {
-                    popup.style.display = 'none';
-                });
+                img.addEventListener('click', () => popup.style.display = 'block');
+                closeBtn.addEventListener('click', () => popup.style.display = 'none');
             });
     
             const audio = document.getElementById('background-audio');
             const audioToggleButton = document.getElementById('audio-toggle');
-    
             audio.play().catch(error => {
-                console.log("Autoplay was prevented:", error);
+                console.log("Autoplay prevented:", error);
                 document.body.addEventListener('click', function startAudio() {
                     audio.play();
                     document.body.removeEventListener('click', startAudio);
                 }, { once: true });
             });
-    
             audioToggleButton.addEventListener('click', () => {
                 if (audio.paused) {
                     audio.play();
@@ -1105,7 +1006,6 @@
             const staffImg = document.querySelector('#matrix-image img:last-child');
             let rotationCount = 0;
             let clickCount = 0;
-    
             function rotateStaff() {
                 clickCount++;
                 rotationCount = (rotationCount + 1) % 8;
@@ -1113,7 +1013,6 @@
                 staffImg.style.transform = `rotate(${rotationAngle}deg)`;
                 document.getElementById('counter-button').textContent = `Counter: ${clickCount}`;
             }
-    
             transparencyImg.addEventListener('click', rotateStaff);
             staffImg.addEventListener('click', rotateStaff);
         });
