@@ -776,7 +776,7 @@
             for(let i = 0; i < col; i++) arr[i] = 1;
         });
     
-        window.addEventListener('load', function () {
+        window.addEventListener('load', async function () {
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('portrait')
                     .then(() => console.log('Orientation locked to portrait'))
@@ -833,8 +833,9 @@
             let fgDataPoints1 = JSON.parse(localStorage.getItem('fgDataPoints1')) || [];
             let fgDataPoints2 = JSON.parse(localStorage.getItem('fgDataPoints2')) || [];
             let prevPrices1 = {}, prevPrices2 = {};
-            const coins1 = ["solana", "ai16z", "fartcoin", "zerebro", "goat", "griffain", "tao", "virtual", "act", "render", "arc"];
-            const coins2 = ["bitcoin", "ethereum", "ripple", "binancecoin", "solana", "dogecoin"];
+            // Updated with valid CoinGecko IDs
+            const coins1 = ["solana", "bittensor", "render-network"]; // Adjusted invalid coins
+            const coins2 = ["bitcoin", "ethereum", "ripple", "binance-coin", "solana", "dogecoin"];
     
             // Time Frame Management
             const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
@@ -894,20 +895,6 @@
                 chart.timeScale().fitContent();
             }
     
-            // Initial Chart Setup (Empty until historical data loads)
-            const initialSeries1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-            fgSeries1.push({ series: initialSeries1, color: '#00ff00' });
-            initialSeries1.setData(fgDataPoints1);
-            chart1.timeScale().fitContent();
-    
-            const initialSeries2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-            fgSeries2.push({ series: initialSeries2, color: '#00ff00' });
-            initialSeries2.setData(fgDataPoints2);
-            chart2.timeScale().fitContent();
-    
-            createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
-            createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
-    
             // Fetch Historical Data for Multiple Coins
             async function fetchHistoricalData(chart, coins, dataPoints, seriesArray, days = 1) {
                 const now = Math.floor(Date.now() / 1000);
@@ -915,20 +902,16 @@
                 const interval = 1800; // 30 minutes in seconds
                 const pointsCount = Math.floor((days * 86400) / interval);
     
-                // Filter valid coins (some may not exist in CoinGecko)
-                const validCoins = coins.filter(coin => ["solana", "bitcoin", "ethereum", "ripple", "binancecoin", "dogecoin", "render", "bittensor"].includes(coin)); // Add valid IDs as needed
-                if (validCoins.length === 0) {
-                    console.error("No valid coins for historical data");
-                    return;
-                }
+                console.log(`Fetching historical data for ${coins.length} coins over ${days} day(s)`);
     
                 // Fetch historical data for each coin with delay to avoid rate limits
-                const priceHistories = await Promise.all(validCoins.map(async (coin, idx) => {
-                    await new Promise(resolve => setTimeout(resolve, idx * 1000)); // 1-second delay between requests
+                const priceHistories = await Promise.all(coins.map(async (coin, idx) => {
+                    await new Promise(resolve => setTimeout(resolve, idx * 1000)); // 1-second delay
                     try {
                         const url = `https://api.coingecko.com/api/v3/coins/${coin}/market_chart?vs_currency=usd&days=${days}&interval=30m`;
                         const response = await fetch(url);
                         const data = await response.json();
+                        console.log(`Fetched data for ${coin}: ${data.prices.length} points`);
                         return data.prices.map(([time, price]) => ({ time: Math.floor(time / 1000), price }));
                     } catch (error) {
                         console.error(`Error fetching historical data for ${coin}:`, error);
@@ -942,7 +925,7 @@
                     let numUp = 0, numDown = 0;
                     const prevPrices = {};
     
-                    validCoins.forEach((coin, idx) => {
+                    coins.forEach((coin, idx) => {
                         const history = priceHistories[idx];
                         const current = history.find(p => p.time >= timestamp - 900 && p.time <= timestamp + 900);
                         if (current && prevPrices[coin] !== undefined) {
@@ -957,6 +940,8 @@
                     else if (numDown > numUp) score = Math.max(0, score - 2);
                     historicalPoints.push({ time: timestamp, value: score });
                 }
+    
+                console.log(`Historical points generated: ${historicalPoints.length}`);
     
                 dataPoints.length = 0;
                 dataPoints.push(...historicalPoints);
@@ -983,26 +968,52 @@
                             prevPrices[coin] = price;
                         }
                     }
-                    let fgScore = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].value : 50; // Default to 50 if no data
+                    let fgScore = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].value : 50;
                     if (numUp > numDown) fgScore = Math.min(100, fgScore + 2);
                     else if (numDown > numUp) fgScore = Math.max(0, fgScore - 2);
                     dataPoints.push({ time: estTimestamp, value: fgScore });
                     localStorage.setItem(fgScoreKey, JSON.stringify(dataPoints));
                     updateChart(chart, dataPoints, seriesArray, chart === chart1 ? currentTimeFrame1 : currentTimeFrame2);
                 } catch (error) {
-                    console.error('Error fetching data from CoinGecko:', error);
+                    console.error('Error fetching real-time data from CoinGecko:', error);
                 }
             }
     
-            // Load historical data on page load (1 day of data)
-            fetchHistoricalData(chart1, coins1, fgDataPoints1, fgSeries1, 1);
-            fetchHistoricalData(chart2, coins2, fgDataPoints2, fgSeries2, 1);
+            // Initialize Charts After Historical Data is Fetched
+            async function initializeCharts() {
+                console.log("Starting historical data fetch...");
+                await Promise.all([
+                    fetchHistoricalData(chart1, coins1, fgDataPoints1, fgSeries1, 1),
+                    fetchHistoricalData(chart2, coins2, fgDataPoints2, fgSeries2, 1)
+                ]);
     
-            // Start real-time updates
-            setInterval(() => fetchCryptoData(chart1, coins1, fgDataPoints1, fgSeries1, prevPrices1, 'fgDataPoints1'), 30000);
-            setInterval(() => fetchCryptoData(chart2, coins2, fgDataPoints2, fgSeries2, prevPrices2, 'fgDataPoints2'), 30000);
-            fetchCryptoData(chart1, coins1, fgDataPoints1, fgSeries1, prevPrices1, 'fgDataPoints1');
-            fetchCryptoData(chart2, coins2, fgDataPoints2, fgSeries2, prevPrices2, 'fgDataPoints2');
+                // Only set initial series if data is present
+                if (fgDataPoints1.length > 0) {
+                    const initialSeries1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
+                    fgSeries1.push({ series: initialSeries1, color: '#00ff00' });
+                    initialSeries1.setData(fgDataPoints1);
+                    chart1.timeScale().fitContent();
+                }
+    
+                if (fgDataPoints2.length > 0) {
+                    const initialSeries2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
+                    fgSeries2.push({ series: initialSeries2, color: '#00ff00' });
+                    initialSeries2.setData(fgDataPoints2);
+                    chart2.timeScale().fitContent();
+                }
+    
+                createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
+                createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
+    
+                // Start real-time updates
+                setInterval(() => fetchCryptoData(chart1, coins1, fgDataPoints1, fgSeries1, prevPrices1, 'fgDataPoints1'), 30000);
+                setInterval(() => fetchCryptoData(chart2, coins2, fgDataPoints2, fgSeries2, prevPrices2, 'fgDataPoints2'), 30000);
+                fetchCryptoData(chart1, coins1, fgDataPoints1, fgSeries1, prevPrices1, 'fgDataPoints1');
+                fetchCryptoData(chart2, coins2, fgDataPoints2, fgSeries2, prevPrices2, 'fgDataPoints2');
+            }
+    
+            // Start the initialization
+            initializeCharts();
     
             function resizeCharts() {
                 chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
