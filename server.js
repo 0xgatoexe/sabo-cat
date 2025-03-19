@@ -3,9 +3,9 @@ const fetch = require('node-fetch');
 const WebSocket = require('ws');
 const fs = require('fs').promises;
 
-const app = express();
-const server = app.listen(3000, () => console.log('Server running on port 3000'));
-const wss = new WebSocket.Server({ server }); // Use the same server as Express
+const PORT = process.env.PORT || 3000;
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const wss = new WebSocket.Server({ server });
 
 const coins1 = ["solana", "bittensor", "render-network"];
 const coins2 = ["bitcoin", "ethereum", "ripple", "binance-coin", "solana", "dogecoin"];
@@ -16,40 +16,55 @@ let prevPrices1 = {};
 let prevPrices2 = {};
 
 async function loadData() {
+    const now = Math.floor(Date.now() / 1000);
+    const tenHoursAgo = now - 36000; // 10 hours = 36,000 seconds
+
     try {
         const data1 = await fs.readFile('fgDataPoints1.json', 'utf8');
         fgDataPoints1 = JSON.parse(data1);
         console.log('Loaded fgDataPoints1 from file:', fgDataPoints1.length);
     } catch (err) {
-        console.log('No initial fgDataPoints1 found, starting fresh');
+        console.log('No initial fgDataPoints1 found, preloading 10 hours');
+        fgDataPoints1 = [];
     }
+
     try {
         const data2 = await fs.readFile('fgDataPoints2.json', 'utf8');
         fgDataPoints2 = JSON.parse(data2);
         console.log('Loaded fgDataPoints2 from file:', fgDataPoints2.length);
     } catch (err) {
-        console.log('No initial fgDataPoints2 found, starting fresh');
+        console.log('No initial fgDataPoints2 found, preloading 10 hours');
+        fgDataPoints2 = [];
     }
 
-    // Ensure 10 hours of data (1200 points at 30s intervals)
-    const now = Math.floor(Date.now() / 1000);
-    const tenHoursAgo = now - 36000; // 10 hours in seconds
-    if (fgDataPoints1.length < 1200 || fgDataPoints1[0].time > tenHoursAgo) {
-        console.log('Preloading 10 hours for fgDataPoints1');
-        fgDataPoints1 = [];
+    // Ensure at least 10 hours of data (1200 points at 30s intervals)
+    if (fgDataPoints1.length < 1200 || fgDataPoints1[0]?.time > tenHoursAgo) {
+        console.log('Preloading or extending fgDataPoints1 to 10 hours');
+        const existingTimes = new Set(fgDataPoints1.map(p => p.time));
+        const newPoints = [];
         for (let i = 0; i < 1200; i++) {
-            const time = now - (1199 - i) * 30;
-            fgDataPoints1.push({ time, value: 50 }); // Start at neutral 50
+            const time = tenHoursAgo + i * 30;
+            if (!existingTimes.has(time)) {
+                newPoints.push({ time, value: 50 }); // Neutral starting value
+            }
         }
+        fgDataPoints1 = [...newPoints, ...fgDataPoints1].sort((a, b) => a.time - b.time);
     }
-    if (fgDataPoints2.length < 1200 || fgDataPoints2[0].time > tenHoursAgo) {
-        console.log('Preloading 10 hours for fgDataPoints2');
-        fgDataPoints2 = [];
+
+    if (fgDataPoints2.length < 1200 || fgDataPoints2[0]?.time > tenHoursAgo) {
+        console.log('Preloading or extending fgDataPoints2 to 10 hours');
+        const existingTimes = new Set(fgDataPoints2.map(p => p.time));
+        const newPoints = [];
         for (let i = 0; i < 1200; i++) {
-            const time = now - (1199 - i) * 30;
-            fgDataPoints2.push({ time, value: 50 }); // Start at neutral 50
+            const time = tenHoursAgo + i * 30;
+            if (!existingTimes.has(time)) {
+                newPoints.push({ time, value: 50 });
+            }
         }
+        fgDataPoints2 = [...newPoints, ...fgDataPoints2].sort((a, b) => a.time - b.time);
     }
+
+    await saveData(); // Save the preloaded data
 }
 
 async function saveData() {
