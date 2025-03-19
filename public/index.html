@@ -238,28 +238,39 @@
             background: black;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Distribute space evenly */
+            justify-content: space-between;
             align-items: center;
-            padding: 0.3rem 0; /* Reduced padding from 0.5rem to 0.3rem to fit larger charts */
+            padding: 0.3rem 0;
             box-sizing: border-box;
         }
 
         .chart-container {
             width: 90%;
-            height: 50%; /* Increased from 42% to 50% (approximately 20% increase) */
-            background-color: #1a1a1a; /* Match chart background */
+            height: 50%;
+            background-color: #1a1a1a;
             position: relative;
-            border: 1px solid #00ff00; /* Green border to tie into theme */
-            border-radius: 5px; /* Slight rounding for modern look */
+            border: 1px solid #00ff00;
+            border-radius: 5px;
         }
 
         h2 {
             color: white;
             text-align: center;
-            margin: 0.2rem 0; /* Reduced from 0.3rem to 0.2rem to minimize gaps */
+            margin: 0.2rem 0;
             font-family: 'proxima-nova', sans-serif;
             font-weight: 300;
             font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+        }
+
+        .timeframe-selector {
+            font-family: 'main', sans-serif;
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            color: #00ff00;
+            background: #1a1a1a;
+            border: 1px solid #00ff00;
+            padding: 0.3rem;
+            margin: 0.2rem 0;
+            cursor: pointer;
         }
 
         .twitter-banner {
@@ -438,7 +449,7 @@
             transition: transform 0.3s ease;
         }
         .bottom-right-container a:hover {
-            transform: scale(1.05); /* Slight scale effect on hover */
+            transform: scale(1.05);
         }
 
         /* Mobile-specific adjustments */
@@ -476,10 +487,10 @@
                 margin: 0.5rem 0;
             }
             .charts-wrapper {
-                height: 70vh; /* Reduced further for mobile */
+                height: 70vh;
             }
             .chart-container {
-                height: 48%; /* Slightly less than 50% to fit within 70vh on mobile */
+                height: 48%;
             }
             h2 {
                 font-size: clamp(0.7rem, 1.6vw, 1rem);
@@ -576,10 +587,10 @@
             }
 
             .charts-wrapper {
-                height: 75vh; /* Adjusted for landscape */
+                height: 75vh;
             }
             .chart-container {
-                height: 48%; /* Slightly less than 50% for landscape */
+                height: 48%;
             }
             h2 {
                 font-size: clamp(0.6rem, 1.4vw, 0.9rem);
@@ -597,11 +608,11 @@
     <div id="matrix-container">
         <canvas id="canvas"></canvas>
         <div id="matrix-image">
-            <img src="images/sabo-cat-transparency.png" alt="sabo cat transparency">
-            <img src="images/sabo-cat-staff.png" alt="sabo cat staff">
+            <img src="sabo-cat-transparency.png" alt="sabo cat transparency">
+            <img src="sabo-cat-staff.png" alt="sabo cat staff">
         </div>
         <div id="logo">
-            <img src="images/logo.png" alt="Sabo Cat Logo" id="logo-image">
+            <img src="logo.png" alt="Sabo Cat Logo" id="logo-image">
             <h1>SABO CAT MARKET WIZARD</h1>
         </div>
         <div class="bottom-right-images">
@@ -633,8 +644,22 @@
     </div>
     <div class="charts-wrapper">
         <h2>Real-Time Solana AI Market Trend Data (30-second interval timestamp)</h2>
+        <select id="timeframe1" class="timeframe-selector">
+            <option value="1h">1 Hour</option>
+            <option value="4h">4 Hours</option>
+            <option value="1d">1 Day</option>
+            <option value="10h" selected>10 Hours</option>
+            <option value="all">All</option>
+        </select>
         <div id="chart1" class="chart-container"></div>
         <h2>Real-Time Crypto Major Assets Trending Data (30-second interval timestamp)</h2>
+        <select id="timeframe2" class="timeframe-selector">
+            <option value="1h">1 Hour</option>
+            <option value="4h">4 Hours</option>
+            <option value="1d">1 Day</option>
+            <option value="10h" selected>10 Hours</option>
+            <option value="all">All</option>
+        </select>
         <div id="chart2" class="chart-container"></div>
         <div class="marquee">
             <div class="marquee-content">
@@ -775,7 +800,7 @@
             arr = [];
             for(let i = 0; i < col; i++) arr[i] = 1;
         });
-
+    
         window.addEventListener('load', async function () {
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('portrait')
@@ -784,15 +809,17 @@
             } else {
                 console.warn('Screen Orientation API not supported');
             }
-
+    
             const chart1Container = document.getElementById('chart1');
             const chart2Container = document.getElementById('chart2');
-
+            const timeframe1 = document.getElementById('timeframe1');
+            const timeframe2 = document.getElementById('timeframe2');
+    
             if (!chart1Container || !chart2Container) {
                 console.error('Chart containers not found! Check HTML for chart1 and chart2 divs.');
                 return;
             }
-
+    
             const chart1 = LightweightCharts.createChart(chart1Container, {
                 width: chart1Container.offsetWidth,
                 height: chart1Container.offsetHeight,
@@ -811,7 +838,7 @@
                 handleScroll: { mouseWheel: true, pressedMouseMove: true },
                 handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
             });
-
+    
             const chart2 = LightweightCharts.createChart(chart2Container, {
                 width: chart2Container.offsetWidth,
                 height: chart2Container.offsetHeight,
@@ -830,19 +857,30 @@
                 handleScroll: { mouseWheel: true, pressedMouseMove: true },
                 handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
             });
-
+    
             let fgSeries1 = [], fgSeries2 = [];
-            let fgDataPoints1 = []; // Full dataset
-            let fgDataPoints2 = [];
-
-            function updateChart(chart, dataPoints, seriesArray) {
+            let fgDataPoints1 = []; // Full dataset for Chart 1
+            let fgDataPoints2 = []; // Full dataset for Chart 2
+    
+            function filterData(dataPoints, timeframe) {
                 const now = Math.floor(Date.now() / 1000);
-                const tenHoursAgo = now - 36000; // Fixed 10-hour window
-                const filteredData = dataPoints.filter(point => point.time >= tenHoursAgo);
-
+                let cutoff;
+                switch (timeframe) {
+                    case '1h': cutoff = now - 3600; break;   // 1 hour
+                    case '4h': cutoff = now - 14400; break;  // 4 hours
+                    case '1d': cutoff = now - 86400; break;  // 1 day
+                    case '10h': cutoff = now - 36000; break; // 10 hours
+                    case 'all': return dataPoints;           // All data
+                }
+                return dataPoints.filter(point => point.time >= cutoff);
+            }
+    
+            function updateChart(chart, dataPoints, seriesArray, timeframe) {
+                const filteredData = filterData(dataPoints, timeframe);
+    
                 seriesArray.forEach(s => chart.removeSeries(s.series));
                 seriesArray.length = 0;
-
+    
                 let currentSeries = null;
                 for (let i = 0; i < filteredData.length; i++) {
                     if (i === 0 || filteredData[i].value !== filteredData[i - 1].value) {
@@ -858,57 +896,46 @@
                 }
                 chart.timeScale().fitContent();
             }
-
+    
             async function fetchInitialData() {
                 try {
                     const response = await fetch('/data');
                     const data = await response.json();
-                    fgDataPoints1 = data.fgDataPoints1; // Full dataset
-                    fgDataPoints2 = data.fgDataPoints2;
-
+                    fgDataPoints1 = data.fgDataPoints1 || [];
+                    fgDataPoints2 = data.fgDataPoints2 || [];
+    
                     console.log('Full data fetched:', fgDataPoints1.length, fgDataPoints2.length);
-
-                    const now = Math.floor(Date.now() / 1000);
-                    const tenHoursAgo = now - 36000; // 10 hours in seconds
-                    const initialDataPoints1 = fgDataPoints1.filter(point => point.time >= tenHoursAgo);
-                    const initialDataPoints2 = fgDataPoints2.filter(point => point.time >= tenHoursAgo);
-
-                    console.log('Initial 10-hour data:', initialDataPoints1.length, initialDataPoints2.length);
-
-                    const initialSeries1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-                    fgSeries1.push({ series: initialSeries1, color: '#00ff00' });
-                    initialSeries1.setData(initialDataPoints1);
-                    chart1.timeScale().fitContent();
-
-                    const initialSeries2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2, priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) } });
-                    fgSeries2.push({ series: initialSeries2, color: '#00ff00' });
-                    initialSeries2.setData(initialDataPoints2);
-                    chart2.timeScale().fitContent();
+    
+                    updateChart(chart1, fgDataPoints1, fgSeries1, timeframe1.value);
+                    updateChart(chart2, fgDataPoints2, fgSeries2, timeframe2.value);
                 } catch (error) {
                     console.error('Error fetching initial data:', error);
                 }
             }
-
-            const ws = new WebSocket('ws://localhost:8081');
+    
+            const ws = new WebSocket(`wss://${window.location.host}`);
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                fgDataPoints1 = data.fgDataPoints1;
-                fgDataPoints2 = data.fgDataPoints2;
-                updateChart(chart1, fgDataPoints1, fgSeries1);
-                updateChart(chart2, fgDataPoints2, fgSeries2);
+                fgDataPoints1 = data.fgDataPoints1 || [];
+                fgDataPoints2 = data.fgDataPoints2 || [];
+                updateChart(chart1, fgDataPoints1, fgSeries1, timeframe1.value);
+                updateChart(chart2, fgDataPoints2, fgSeries2, timeframe2.value);
             };
             ws.onopen = () => console.log('WebSocket connected');
             ws.onerror = (error) => console.error('WebSocket error:', error);
             ws.onclose = () => console.log('WebSocket closed');
-
+    
+            timeframe1.addEventListener('change', () => updateChart(chart1, fgDataPoints1, fgSeries1, timeframe1.value));
+            timeframe2.addEventListener('change', () => updateChart(chart2, fgDataPoints2, fgSeries2, timeframe2.value));
+    
             await fetchInitialData();
-
+    
             function resizeCharts() {
                 chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
                 chart2.resize(chart2Container.offsetWidth, chart2Container.offsetHeight);
             }
             window.addEventListener('resize', resizeCharts);
-
+    
             const caButton = document.querySelector('.ca-button');
             const copiedMessage = document.getElementById('copied-message');
             const caString = "YOUR_LONG_STRING_HERE";
@@ -918,7 +945,7 @@
                     setTimeout(() => copiedMessage.style.opacity = '0', 1000);
                 }).catch(err => console.error('Failed to copy text: ', err));
             });
-
+    
             const mailLogo = document.getElementById('mail-logo');
             const mailCopiedMessage = document.getElementById('mail-copied-message');
             const mailString = "0xgatoexe@gmail.com";
@@ -928,22 +955,22 @@
                     setTimeout(() => mailCopiedMessage.style.opacity = '0', 1000);
                 }).catch(err => console.error('Failed to copy email: ', err));
             });
-
+    
             const buyButton = document.querySelector('.buy-button');
             const buyUrl = "https://example.com";
             buyButton.addEventListener('click', () => window.open(buyUrl, '_blank'));
-
+    
             const manifestoButton = document.querySelector('.manifesto-button');
             const manifestoSection = document.getElementById('manifesto');
             manifestoButton.addEventListener('click', () => manifestoSection.scrollIntoView({ behavior: 'smooth' }));
-
+    
             const logoImage = document.getElementById('logo-image');
             let isFlipped = false;
             logoImage.addEventListener('click', () => {
                 isFlipped = !isFlipped;
                 logoImage.style.transform = isFlipped ? 'rotate(180deg)' : 'rotate(0deg)';
             });
-
+    
             const galleryImages = document.querySelectorAll('.gallery-image');
             galleryImages.forEach(gallery => {
                 const img = gallery.querySelector('img');
@@ -952,7 +979,7 @@
                 img.addEventListener('click', () => popup.style.display = 'block');
                 closeBtn.addEventListener('click', () => popup.style.display = 'none');
             });
-
+    
             const audio = document.getElementById('background-audio');
             const audioToggleButton = document.getElementById('audio-toggle');
             audio.play().catch(error => {
@@ -971,7 +998,7 @@
                     audioToggleButton.textContent = 'PLAY';
                 }
             });
-
+    
             const transparencyImg = document.querySelector('#matrix-image img:first-child');
             const staffImg = document.querySelector('#matrix-image img:last-child');
             let rotationCount = 0;
