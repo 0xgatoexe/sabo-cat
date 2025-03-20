@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Real-Time Crypto Market Trend Data (30-second interval timestamp)</title>
         <meta property="og:title" content="SABO CAT THE MARKET WIZARD" />
-        <link rel="icon" type="image/png" href="sabo-cat-favicon.png">
+        <link rel="icon" type="image/png" href="/sabo-cat-favicon.png">
         <script src="https://unpkg.com/lightweight-charts@3.4.0/dist/lightweight-charts.standalone.production.js"></script>
         <link rel="stylesheet" href="https://use.typekit.net/af/153422/00000000000000007759c419/30/l?subset_id=2&fvd=n3&v=3" type="text/css">
         <style>
@@ -59,12 +59,11 @@
             outline: none;
         }
 
-        /* Desktop default offsets */
-        #matrix-image img:first-child { /* sabo-cat-transparency.png */
+        #matrix-image img:first-child {
             margin-top: var(--transparency-vertical-offset, 0px);
             margin-left: var(--transparency-horizontal-offset, 50px);
         }
-        #matrix-image img:last-child { /* sabo-cat-staff.png */
+        #matrix-image img:last-child {
             margin-top: var(--staff-vertical-offset, 0px);
             margin-left: var(--staff-horizontal-offset, -183px);
         }
@@ -238,25 +237,25 @@
             background: black;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Distribute space evenly */
+            justify-content: space-between;
             align-items: center;
-            padding: 0.3rem 0; /* Reduced padding from 0.5rem to 0.3rem to fit larger charts */
+            padding: 0.3rem 0;
             box-sizing: border-box;
         }
 
         .chart-container {
             width: 90%;
-            height: 50%; /* Increased from 42% to 50% (approximately 20% increase) */
-            background-color: #1a1a1a; /* Match chart background */
+            height: 50%;
+            background-color: #1a1a1a;
             position: relative;
-            border: 1px solid #00ff00; /* Green border to tie into theme */
-            border-radius: 5px; /* Slight rounding for modern look */
+            border: 1px solid #00ff00;
+            border-radius: 5px;
         }
 
         h2 {
             color: white;
             text-align: center;
-            margin: 0.2rem 0; /* Reduced from 0.3rem to 0.2rem to minimize gaps */
+            margin: 0.2rem 0;
             font-family: 'proxima-nova', sans-serif;
             font-weight: 300;
             font-size: clamp(0.9rem, 1.8vw, 1.3rem);
@@ -438,10 +437,9 @@
             transition: transform 0.3s ease;
         }
         .bottom-right-container a:hover {
-            transform: scale(1.05); /* Slight scale effect on hover */
+            transform: scale(1.05);
         }
 
-        /* Mobile-specific adjustments */
         @media (max-width: 768px) {
             #matrix-image {
                 flex-direction: column;
@@ -476,10 +474,10 @@
                 margin: 0.5rem 0;
             }
             .charts-wrapper {
-                height: 70vh; /* Reduced further for mobile */
+                height: 70vh;
             }
             .chart-container {
-                height: 48%; /* Slightly less than 50% to fit within 70vh on mobile */
+                height: 48%;
             }
             h2 {
                 font-size: clamp(0.7rem, 1.6vw, 1rem);
@@ -506,80 +504,66 @@
             }
         }
 
-        /* Landscape mode adjustments for mobile */
         @media (orientation: landscape) and (max-height: 500px) {
             #matrix-container {
                 height: 40vh;
                 max-height: 300px;
             }
-
             #matrix-image {
                 flex-direction: row;
                 gap: 5px;
                 width: 80%;
                 max-width: 400px;
             }
-
             #matrix-image img {
                 width: 40%;
                 max-width: 120px;
             }
-
             #matrix-image img:first-child {
                 margin-top: 0;
                 margin-left: 0;
             }
-
             #matrix-image img:last-child {
                 margin-top: 0;
                 margin-left: 0;
             }
-
             #logo {
                 top: 0.3rem;
                 left: 0.3rem;
             }
-
             #logo img {
                 height: clamp(2rem, 15vw, 4rem);
             }
-
             #logo h1 {
                 font-size: clamp(0.8rem, 3vw, 1.2rem);
             }
-
             .bottom-left-buttons {
                 bottom: 0.5rem;
                 width: 90%;
                 gap: 0.3rem;
             }
-
             .ca-button, .buy-button, .manifesto-button, 
             .audio-toggle-button, .counter-button {
                 font-size: clamp(0.6rem, 2vw, 1rem);
                 padding: 0.2rem 0.4rem;
             }
-
             .bottom-right-images img {
                 height: clamp(20px, 8vw, 40px);
             }
-
             .social-links img {
                 height: clamp(20px, 6vw, 30px);
             }
-
             .bottom-right-container img#sabo-labs {
                 height: clamp(50px, 12vw, 90px);
             }
             .bottom-right-container img#mail-logo {
                 height: clamp(25px, 6vw, 40px);
             }
-
             .charts-wrapper {
-                height: 75vh; /* Adjusted for landscape */
+                height: 75vh;
             }
             .chart-container {
-                height: 48%; /* Slightly less than 50% for landscape */
+                height: 48%;
             }
             h2 {
                 font-size: clamp(0.6rem, 1.4vw, 0.9rem);
@@ -590,18 +574,18 @@
 </head>
 <body>
     <audio id="background-audio" autoplay loop>
-        <source src="background-song.mp3" type="audio/mpeg">
+        <source src="/background-song.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
     <div id="matrix-container">
         <canvas id="canvas"></canvas>
         <div id="matrix-image">
-            <img src="sabo-cat-transparency.png" alt="sabo cat transparency">
-            <img src="sabo-cat-staff.png" alt="sabo cat staff">
+            <img src="/sabo-cat-transparency.png" alt="sabo cat transparency">
+            <img src="/sabo-cat-staff.png" alt="sabo cat staff">
         </div>
         <div id="logo">
-            <img src="logo.png" alt="Sabo Cat Logo" id="logo-image">
+            <img src="/logo.png" alt="Sabo Cat Logo" id="logo-image">
             <h1>SABO CAT MARKET WIZARD</h1>
         </div>
         <div class="bottom-right-images">
@@ -618,10 +602,10 @@
         </div>
         <div class="social-links">
             <a href="https://t.me/sabocatportal" target="_blank">
-                <img src="images/telegramlogo.png" alt="Telegram">
+                <img src="/images/telegramlogo.png" alt="Telegram">
             </a>
             <a href="https://x.com/sabocatai" target="_blank">
-                <img src="images/xlogo.png" alt="X">
+                <img src="/images/xlogo.png" alt="X">
             </a>
         </div>
     </div>
@@ -643,74 +627,74 @@
             </div>
         </div>
     </div>
-    <img src="images/sabo-cat-twitter-banner.png" alt="Sabo Cat Twitter Banner" class="twitter-banner">
+    <img src="/images/sabo-cat-twitter-banner.png" alt="Sabo Cat Twitter Banner" class="twitter-banner">
     <div class="solana-marquee">
         <div class="solana-marquee-content">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
-            <span>POWERED BY SOLANA</span><img src="images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
+            <span>POWERED BY SOLANA</span><img src="/images/solana-logo.png" alt="Solana Logo">
         </div>
     </div>
     <div class="image-gallery">
         <div class="gallery-row">
             <div class="gallery-image">
-                <img src="images/classroom-sabo.png" alt="Classroom Sabo">
+                <img src="/images/classroom-sabo.png" alt="Classroom Sabo">
                 <div class="popup">
-                    <img src="images/classroom-sabo.png" alt="Classroom Sabo Enlarged">
+                    <img src="/images/classroom-sabo.png" alt="Classroom Sabo Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
             <div class="gallery-image">
-                <img src="images/sabo-cat-coder.png" alt="Sabo Cat Coder">
+                <img src="/images/sabo-cat-coder.png" alt="Sabo Cat Coder">
                 <div class="popup">
-                    <img src="images/sabo-cat-coder.png" alt="Sabo Cat Coder Enlarged">
+                    <img src="/images/sabo-cat-coder.png" alt="Sabo Cat Coder Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
             <div class="gallery-image">
-                <img src="images/sabo-cat-glad.png" alt="Sabo Cat Glad">
+                <img src="/images/sabo-cat-glad.png" alt="Sabo Cat Glad">
                 <div class="popup">
-                    <img src="images/sabo-cat-glad.png" alt="Sabo Cat Glad Enlarged">
+                    <img src="/images/sabo-cat-glad.png" alt="Sabo Cat Glad Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
         </div>
         <div class="gallery-row">
             <div class="gallery-image">
-                <img src="images/sabo-cat-time-square.png" alt="Sabo Cat Time Square">
+                <img src="/images/sabo-cat-time-square.png" alt="Sabo Cat Time Square">
                 <div class="popup">
-                    <img src="images/sabo-cat-time-square.png" alt="Sabo Cat Time Square Enlarged">
+                    <img src="/images/sabo-cat-time-square.png" alt="Sabo Cat Time Square Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
             <div class="gallery-image">
-                <img src="images/sabo-cat-wizard.png" alt="Sabo Cat Wizard">
+                <img src="/images/sabo-cat-wizard.png" alt="Sabo Cat Wizard">
                 <div class="popup">
-                    <img src="images/sabo-cat-wizard.png" alt="Sabo Cat Wizard Enlarged">
+                    <img src="/images/sabo-cat-wizard.png" alt="Sabo Cat Wizard Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
             <div class="gallery-image">
-                <img src="images/sabo-paris.png" alt="Sabo Paris">
+                <img src="/images/sabo-paris.png" alt="Sabo Paris">
                 <div class="popup">
-                    <img src="images/sabo-paris.png" alt="Sabo Paris Enlarged">
+                    <img src="/images/sabo-paris.png" alt="Sabo Paris Enlarged">
                     <span class="popup-close">X</span>
                 </div>
             </div>
@@ -736,11 +720,11 @@
     </section>
     <div class="bottom-right-container">
         <div class="mail-container">
-            <img src="images/mail-logo.png" alt="Mail" id="mail-logo">
+            <img src="/images/mail-logo.png" alt="Mail" id="mail-logo">
             <div class="mail-copied-message" id="mail-copied-message">Copied</div>
         </div>
         <a href="https://x.com/sabolabs" target="_blank">
-            <img src="images/sabo-labs.png" alt="Sabo Labs" id="sabo-labs">
+            <img src="/images/sabo-labs.png" alt="Sabo Labs" id="sabo-labs">
         </a>
     </div>
 
@@ -780,7 +764,6 @@
             const chart1Container = document.getElementById('chart1');
             const chart2Container = document.getElementById('chart2');
     
-            // Chart Initialization
             const chart1 = LightweightCharts.createChart(chart1Container, {
                 width: chart1Container.offsetWidth,
                 height: chart1Container.offsetHeight,
@@ -815,60 +798,13 @@
                 rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
             });
     
-            // Chart Data Management
             let fgSeries1 = [], fgSeries2 = [];
             let fgDataPoints1 = [];
             let fgDataPoints2 = [];
-    
-            async function fetchPreloadedData() {
-                const baseUrl = window.location.origin;
-                try {
-                    const [response1, response2] = await Promise.all([
-                        fetch(`${baseUrl}/api/chart1`),
-                        fetch(`${baseUrl}/api/chart2`)
-                    ]);
-                    fgDataPoints1 = await response1.json();
-                    fgDataPoints2 = await response2.json();
-    
-                    console.log('Initial Chart 1 data:', fgDataPoints1);
-                    console.log('Initial Chart 2 data:', fgDataPoints2);
-    
-                    updateChart(chart1, fgDataPoints1, fgSeries1, 'ALL');
-                    updateChart(chart2, fgDataPoints2, fgSeries2, 'ALL');
-                } catch (error) {
-                    console.error('Error fetching preloaded data:', error);
-                }
-            }
-    
-            async function fetchRealTimeData() {
-                const baseUrl = window.location.origin;
-                try {
-                    const [response1, response2] = await Promise.all([
-                        fetch(`${baseUrl}/api/chart1`),
-                        fetch(`${baseUrl}/api/chart2`)
-                    ]);
-                    const newData1 = await response1.json();
-                    const newData2 = await response2.json();
-    
-                    // Append only the latest point to avoid duplicating history
-                    const latestPoint1 = newData1[newData1.length - 1];
-                    const latestPoint2 = newData2[newData2.length - 1];
-    
-                    if (fgDataPoints1.length === 0 || fgDataPoints1[fgDataPoints1.length - 1].time < latestPoint1.time) {
-                        fgDataPoints1.push(latestPoint1);
-                        updateChart(chart1, fgDataPoints1, fgSeries1, 'ALL');
-                    }
-                    if (fgDataPoints2.length === 0 || fgDataPoints2[fgDataPoints2.length - 1].time < latestPoint2.time) {
-                        fgDataPoints2.push(latestPoint2);
-                        updateChart(chart2, fgDataPoints2, fgSeries2, 'ALL');
-                    }
-                } catch (error) {
-                    console.error('Error fetching real-time data:', error);
-                }
-            }
+            let currentTimeFrame1 = 'ALL';
+            let currentTimeFrame2 = 'ALL';
     
             function updateChart(chart, dataPoints, seriesArray, timeFrame) {
-                console.log(`Updating chart with ${dataPoints.length} points`);
                 const now = Math.floor(Date.now() / 1000);
                 const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
                 const cutoff = now - timeFrames[timeFrame];
@@ -893,7 +829,42 @@
                 chart.timeScale().fitContent();
             }
     
-            // Create time frame selectors
+            async function fetchInitialData() {
+                try {
+                    const response = await fetch('/data');
+                    const data = await response.json();
+                    fgDataPoints1 = data.fgDataPoints1 || [];
+                    fgDataPoints2 = data.fgDataPoints2 || [];
+                    console.log('Initial data fetched:', fgDataPoints1.length, fgDataPoints2.length);
+                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
+                } catch (error) {
+                    console.error('Error fetching initial data:', error);
+                    fgDataPoints1 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 100 }];
+                    fgDataPoints2 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 50 }];
+                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
+                }
+            }
+    
+            const wsUrl = window.location.protocol === 'https:' ? 'wss://' + window.location.host : 'ws://' + window.location.host;
+            const ws = new WebSocket(wsUrl);
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.fgDataPoints1 && data.fgDataPoints1.length > 0) {
+                    fgDataPoints1 = data.fgDataPoints1;
+                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
+                }
+                if (data.fgDataPoints2 && data.fgDataPoints2.length > 0) {
+                    fgDataPoints2 = data.fgDataPoints2;
+                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
+                }
+                console.log('WebSocket data received:', data);
+            };
+            ws.onopen = () => console.log('WebSocket connected');
+            ws.onerror = (error) => console.error('WebSocket error:', error);
+            ws.onclose = () => console.log('WebSocket closed');
+    
             function createTimeFrameSelector(chartNum, chart, dataPoints, seriesArray) {
                 const container = document.getElementById(`chart${chartNum}`).parentElement;
                 const selector = document.createElement('select');
@@ -916,24 +887,22 @@
                 container.appendChild(selector);
     
                 selector.addEventListener('change', () => {
+                    if (chartNum === 1) currentTimeFrame1 = selector.value;
+                    else currentTimeFrame2 = selector.value;
                     updateChart(chart, dataPoints, seriesArray, selector.value);
                 });
             }
     
-            // Initialize charts with preloaded data and start real-time updates
-            await fetchPreloadedData();
+            await fetchInitialData();
             createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
             createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
-            setInterval(fetchRealTimeData, 30000); // Update every 30 seconds
     
-            // Resize charts on window resize
             function resizeCharts() {
                 chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
                 chart2.resize(chart2Container.offsetWidth, chart2Container.offsetHeight);
             }
             window.addEventListener('resize', resizeCharts);
     
-            // Remaining event listeners
             const caButton = document.querySelector('.ca-button');
             const copiedMessage = document.getElementById('copied-message');
             const caString = "YOUR_LONG_STRING_HERE";

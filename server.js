@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 const fs = require('fs').promises;
 
 const app = express();
-const PORT = process.env.PORT || 3000; // Use Heroku's dynamic port or 3000 locally
+const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const wss = new WebSocket.Server({ server });
 
@@ -18,7 +18,7 @@ let prevPrices2 = {};
 
 async function loadData() {
     const now = Math.floor(Date.now() / 1000);
-    const tenHoursAgo = now - 36000; // 10 hours = 36,000 seconds
+    const tenHoursAgo = now - 36000;
 
     try {
         const data1 = await fs.readFile('fgDataPoints1.json', 'utf8');
@@ -38,7 +38,6 @@ async function loadData() {
         fgDataPoints2 = [];
     }
 
-    // Ensure at least 10 hours of data (1200 points at 30s intervals)
     if (fgDataPoints1.length < 1200 || (fgDataPoints1[0] && fgDataPoints1[0].time > tenHoursAgo)) {
         console.log('Preloading or extending fgDataPoints1 to 10 hours');
         const existingTimes = new Set(fgDataPoints1.map(p => p.time));
@@ -46,7 +45,7 @@ async function loadData() {
         for (let i = 0; i < 1200; i++) {
             const time = tenHoursAgo + i * 30;
             if (!existingTimes.has(time)) {
-                newPoints.push({ time, value: 50 }); // Neutral starting value
+                newPoints.push({ time, value: 50 });
             }
         }
         fgDataPoints1 = [...newPoints, ...fgDataPoints1].sort((a, b) => a.time - b.time);
@@ -67,7 +66,6 @@ async function loadData() {
 }
 
 async function saveData() {
-    // Trim to last 10 hours to avoid infinite growth
     const tenHoursAgo = Math.floor(Date.now() / 1000) - 36000;
     fgDataPoints1 = fgDataPoints1.filter(point => point.time >= tenHoursAgo);
     fgDataPoints2 = fgDataPoints2.filter(point => point.time >= tenHoursAgo);
@@ -77,13 +75,13 @@ async function saveData() {
         await fs.writeFile('fgDataPoints2.json', JSON.stringify(fgDataPoints2));
         console.log('Data saved to files');
     } catch (err) {
-        console.error('Error saving data (expected on Heroku due to ephemeral filesystem):', err);
+        console.error('Error saving data (expected on Heroku):', err);
     }
 }
 
 async function updateData() {
-    const url1 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins1.join(",")}&vs_currencies=usd`; // Added quotes
-    const url2 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins2.join(",")}&vs_currencies=usd`; // Added quotes
+    const url1 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins1.join(",")}&vs_currencies=usd`;
+    const url2 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins2.join(",")}&vs_currencies=usd`;
 
     try {
         const res1 = await fetch(url1);
@@ -140,6 +138,16 @@ async function updateData() {
     }
 }
 
+// Updated endpoints to match index.html
+app.get('/api/chart1', (req, res) => {
+    res.json(fgDataPoints1);
+});
+
+app.get('/api/chart2', (req, res) => {
+    res.json(fgDataPoints2);
+});
+
+// Keep the old /data endpoint for compatibility
 app.get('/data', (req, res) => {
     res.json({ fgDataPoints1, fgDataPoints2 });
 });
@@ -147,13 +155,13 @@ app.get('/data', (req, res) => {
 app.use(express.static('public'));
 
 wss.on('connection', (ws) => {
-    ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 })); // Send initial data on connect
+    ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 }));
 });
 
 async function startServer() {
     await loadData();
-    setInterval(updateData, 30000); // Update every 30 seconds
-    updateData(); // Initial update
+    setInterval(updateData, 30000);
+    updateData();
 }
 
 startServer();
