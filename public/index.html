@@ -729,38 +729,42 @@
     </div>
 
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        let w = canvas.width = window.innerWidth;
-        let h = canvas.height = document.getElementById('matrix-container').offsetHeight;
-        const str = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポ";
-        const matrix = str.split("");
-        let font = 12;
-        let col = w / font;
-        let arr = [];
-        for(let i = 0; i < col; i++) arr[i] = 1;
-        function rain() {
-            ctx.fillStyle = "rgba(0,0,0,0.05)";
-            ctx.fillRect(0, 0, w, h);
-            ctx.fillStyle = "#00ff00";
-            ctx.font = font + "px arial";
-            for(let i = 0; i < arr.length; i++) {
-                let txt = matrix[Math.floor(Math.random() * matrix.length)];
-                ctx.fillText(txt, i * font, arr[i] * font);
-                if(arr[i] * font > h && Math.random() > 0.975) arr[i] = 0;
-                arr[i]++;
-            }
-        }
-        setInterval(rain, 30);
-        window.addEventListener("resize", () => {
-            w = canvas.width = window.innerWidth;
-            h = document.getElementById('matrix-container').offsetHeight;
-            col = w / font;
-            arr = [];
-            for(let i = 0; i < col; i++) arr[i] = 1;
-        });
-    
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let w = canvas.width = window.innerWidth;
+let h = canvas.height = document.getElementById('matrix-container').offsetHeight;
+const str = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポ";
+const matrix = str.split("");
+let font = 12;
+let col = w / font;
+let arr = [];
+for (let i = 0; i < col; i++) arr[i] = 1;
+
+function rain() {
+    ctx.fillStyle = "rgba(0,0,0,0.05)";
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = "#00ff00";
+    ctx.font = font + "px arial";
+    for (let i = 0; i < arr.length; i++) {
+        let txt = matrix[Math.floor(Math.random() * matrix.length)];
+        ctx.fillText(txt, i * font, arr[i] * font);
+        if (arr[i] * font > h && Math.random() > 0.975) arr[i] = 0;
+        arr[i]++;
+    }
+}
+
 window.addEventListener('load', async function () {
+    // Start Matrix rain effect
+    setInterval(rain, 30);
+    window.addEventListener("resize", () => {
+        w = canvas.width = window.innerWidth;
+        h = document.getElementById('matrix-container').offsetHeight;
+        col = w / font;
+        arr = [];
+        for (let i = 0; i < col; i++) arr[i] = 1;
+    });
+
+    // Chart initialization
     const chart1Container = document.getElementById('chart1');
     const chart2Container = document.getElementById('chart2');
 
@@ -811,11 +815,10 @@ window.addEventListener('load', async function () {
         const cutoff = now - timeFrames[timeFrame];
         const filteredData = dataPoints.filter(point => point.time >= cutoff);
 
-        // Update series color based on trend
         if (filteredData.length >= 2) {
             const lastValue = filteredData[filteredData.length - 1].value;
             const prevValue = filteredData[filteredData.length - 2].value;
-            const color = lastValue > prevValue ? '#00ff00' : '#ff0000'; // Green if up, red if down
+            const color = lastValue > prevValue ? '#00ff00' : '#ff0000';
             series.applyOptions({ color });
         }
 
@@ -844,9 +847,7 @@ window.addEventListener('load', async function () {
     const wsUrl = window.location.protocol === 'https:' ? 'wss://' + window.location.host : 'ws://' + window.location.host;
     console.log('Attempting WebSocket connection to:', wsUrl);
     const ws = new WebSocket(wsUrl);
-    ws.onopen = () => {
-        console.log('WebSocket connected');
-    };
+    ws.onopen = () => console.log('WebSocket connected');
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         console.log('WebSocket data received:', data);
@@ -866,9 +867,7 @@ window.addEventListener('load', async function () {
             console.log('Polling update triggered');
         }, 30000);
     };
-    ws.onclose = () => {
-        console.log('WebSocket closed');
-    };
+    ws.onclose = () => console.log('WebSocket closed');
 
     function createTimeFrameSelector(chartNum, chart, series, dataPoints) {
         const container = document.getElementById(`chart${chartNum}`).parentElement;
@@ -908,87 +907,84 @@ window.addEventListener('load', async function () {
     }
     window.addEventListener('resize', resizeCharts);
 
-    // Rest of your event listeners (caButton, mailLogo, etc.) remain unchanged
-    // ...
-});
-    
-            const caButton = document.querySelector('.ca-button');
-            const copiedMessage = document.getElementById('copied-message');
-            const caString = "YOUR_LONG_STRING_HERE";
-            caButton.addEventListener('click', () => {
-                navigator.clipboard.writeText(caString).then(() => {
-                    copiedMessage.style.opacity = '1';
-                    setTimeout(() => copiedMessage.style.opacity = '0', 1000);
-                });
-            });
-    
-            const mailLogo = document.getElementById('mail-logo');
-            const mailCopiedMessage = document.getElementById('mail-copied-message');
-            const mailString = "0xgatoexe@gmail.com";
-            mailLogo.addEventListener('click', () => {
-                navigator.clipboard.writeText(mailString).then(() => {
-                    mailCopiedMessage.style.opacity = '1';
-                    setTimeout(() => mailCopiedMessage.style.opacity = '0', 1000);
-                });
-            });
-    
-            const buyButton = document.querySelector('.buy-button');
-            const buyUrl = "https://example.com";
-            buyButton.addEventListener('click', () => window.open(buyUrl, '_blank'));
-    
-            const manifestoButton = document.querySelector('.manifesto-button');
-            const manifestoSection = document.getElementById('manifesto');
-            manifestoButton.addEventListener('click', () => manifestoSection.scrollIntoView({ behavior: 'smooth' }));
-    
-            const logoImage = document.getElementById('logo-image');
-            let isFlipped = false;
-            logoImage.addEventListener('click', () => {
-                isFlipped = !isFlipped;
-                logoImage.style.transform = isFlipped ? 'rotate(180deg)' : 'rotate(0deg)';
-            });
-    
-            const galleryImages = document.querySelectorAll('.gallery-image');
-            galleryImages.forEach(gallery => {
-                const img = gallery.querySelector('img');
-                const popup = gallery.querySelector('.popup');
-                const closeBtn = gallery.querySelector('.popup-close');
-                img.addEventListener('click', () => popup.style.display = 'block');
-                closeBtn.addEventListener('click', () => popup.style.display = 'none');
-            });
-    
-            const audio = document.getElementById('background-audio');
-            const audioToggleButton = document.getElementById('audio-toggle');
-            audio.play().catch(error => {
-                console.log("Autoplay was prevented:", error);
-                document.body.addEventListener('click', function startAudio() {
-                    audio.play();
-                    document.body.removeEventListener('click', startAudio);
-                }, { once: true });
-            });
-            audioToggleButton.addEventListener('click', () => {
-                if (audio.paused) {
-                    audio.play();
-                    audioToggleButton.textContent = 'PAUSE';
-                } else {
-                    audio.pause();
-                    audioToggleButton.textContent = 'PLAY';
-                }
-            });
-    
-            const transparencyImg = document.querySelector('#matrix-image img:first-child');
-            const staffImg = document.querySelector('#matrix-image img:last-child');
-            let rotationCount = 0;
-            let clickCount = 0;
-            function rotateStaff() {
-                clickCount++;
-                rotationCount = (rotationCount + 1) % 8;
-                const rotationAngle = rotationCount * 45;
-                staffImg.style.transform = `rotate(${rotationAngle}deg)`;
-                document.getElementById('counter-button').textContent = `Counter: ${clickCount}`;
-            }
-            transparencyImg.addEventListener('click', rotateStaff);
-            staffImg.addEventListener('click', rotateStaff);
+    // Event listeners for buttons and interactions
+    const caButton = document.querySelector('.ca-button');
+    const copiedMessage = document.getElementById('copied-message');
+    const caString = "YOUR_LONG_STRING_HERE"; // Replace with your actual CA string
+    caButton.addEventListener('click', () => {
+        navigator.clipboard.writeText(caString).then(() => {
+            copiedMessage.style.opacity = '1';
+            setTimeout(() => copiedMessage.style.opacity = '0', 1000);
         });
-    </script>
+    });
+
+    const mailLogo = document.getElementById('mail-logo');
+    const mailCopiedMessage = document.getElementById('mail-copied-message');
+    const mailString = "0xgatoexe@gmail.com";
+    mailLogo.addEventListener('click', () => {
+        navigator.clipboard.writeText(mailString).then(() => {
+            mailCopiedMessage.style.opacity = '1';
+            setTimeout(() => mailCopiedMessage.style.opacity = '0', 1000);
+        });
+    });
+
+    const buyButton = document.querySelector('.buy-button');
+    const buyUrl = "https://example.com"; // Replace with your actual buy URL
+    buyButton.addEventListener('click', () => window.open(buyUrl, '_blank'));
+
+    const manifestoButton = document.querySelector('.manifesto-button');
+    const manifestoSection = document.getElementById('manifesto');
+    manifestoButton.addEventListener('click', () => manifestoSection.scrollIntoView({ behavior: 'smooth' }));
+
+    const logoImage = document.getElementById('logo-image');
+    let isFlipped = false;
+    logoImage.addEventListener('click', () => {
+        isFlipped = !isFlipped;
+        logoImage.style.transform = isFlipped ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
+
+    const galleryImages = document.querySelectorAll('.gallery-image');
+    galleryImages.forEach(gallery => {
+        const img = gallery.querySelector('img');
+        const popup = gallery.querySelector('.popup');
+        const closeBtn = gallery.querySelector('.popup-close');
+        img.addEventListener('click', () => popup.style.display = 'block');
+        closeBtn.addEventListener('click', () => popup.style.display = 'none');
+    });
+
+    const audio = document.getElementById('background-audio');
+    const audioToggleButton = document.getElementById('audio-toggle');
+    audio.play().catch(error => {
+        console.log("Autoplay was prevented:", error);
+        document.body.addEventListener('click', function startAudio() {
+            audio.play();
+            document.body.removeEventListener('click', startAudio);
+        }, { once: true });
+    });
+    audioToggleButton.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+            audioToggleButton.textContent = 'PAUSE';
+        } else {
+            audio.pause();
+            audioToggleButton.textContent = 'PLAY';
+        }
+    });
+
+    const transparencyImg = document.querySelector('#matrix-image img:first-child');
+    const staffImg = document.querySelector('#matrix-image img:last-child');
+    let rotationCount = 0;
+    let clickCount = 0;
+    function rotateStaff() {
+        clickCount++;
+        rotationCount = (rotationCount + 1) % 8;
+        const rotationAngle = rotationCount * 45;
+        staffImg.style.transform = `rotate(${rotationAngle}deg)`;
+        document.getElementById('counter-button').textContent = `Counter: ${clickCount}`;
+    }
+    transparencyImg.addEventListener('click', rotateStaff);
+    staffImg.addEventListener('click', rotateStaff);
+});
+</script>
 </body>
 </html>
