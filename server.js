@@ -7,21 +7,23 @@ const port = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, 'public')));
 
 const COINGECKO_API = 'https://api.coingecko.com/api/v3';
-const coins1 = ['solana', 'bittensor', 'render-network'];
-const coins2 = ['bitcoin', 'ethereum', 'ripple', 'binance-coin', 'solana', 'dogecoin'];
+const coins1 = ['solana', 'bittensor', 'render-token']; // Updated 'render-network' to 'render-token'
+const coins2 = ['bitcoin', 'ethereum', 'ripple', 'binancecoin', 'solana', 'dogecoin']; // 'binance-coin' to 'binancecoin'
 
 async function fetchHistoricalData(coins) {
     const hours = 10;
     const secondsInHour = 3600;
     const now = Math.floor(Date.now() / 1000);
     const startTime = now - (hours * secondsInHour);
-    const interval = 300; // 5-minute intervals
 
-    console.log(`Fetching data for ${coins.join(', ')} from ${startTime} to ${now}`);
+    console.log(`Fetching 10 hours of data for ${coins.join(', ')} from ${new Date(startTime * 1000)} to ${new Date(now * 1000)}`);
 
-    const priceHistories = await Promise.all(coins.map(async (coin) => {
+    // Fetch historical data for the last 10 hours
+    const priceHistories = await Promise.all(coins.map(async (coin, index) => {
+        // Add delay to avoid rate limits
+        await new Promise(resolve => setTimeout(resolve, index * 1000));
         try {
-            const url = `${COINGECKO_API}/coins/${coin}/market_chart/range?vs_currency=usd&from=${startTime}&to=${now}`;
+            const url = `${COINGECKO_API}/coins/${coin}/market_chart?vs_currency=usd&days=0.416667`; // ~10 hours (0.416667 days)
             const response = await axios.get(url);
             const prices = response.data.prices.map(([time, price]) => ({
                 time: Math.floor(time / 1000),
@@ -35,9 +37,10 @@ async function fetchHistoricalData(coins) {
         }
     }));
 
+    // Generate trend scores
     const dataPoints = [];
+    const interval = 300; // 5-minute intervals
     const pointsCount = Math.floor((hours * secondsInHour) / interval);
-    console.log(`Generating ${pointsCount} data points`);
 
     for (let i = 0; i < pointsCount; i++) {
         const timestamp = startTime + (i * interval);
@@ -46,7 +49,7 @@ async function fetchHistoricalData(coins) {
 
         coins.forEach((coin, idx) => {
             const history = priceHistories[idx].prices;
-            const current = history.find(p => p.time >= timestamp - 150 && p.time <= timestamp + 150);
+            const current = history.find(p => p.time >= timestamp - 150 && p.time <= timestamp + 150) || history[history.length - 1];
             if (current && prevPrices[coin] !== undefined) {
                 if (current.price > prevPrices[coin]) numUp++;
                 else if (current.price < prevPrices[coin]) numDown++;
@@ -60,7 +63,7 @@ async function fetchHistoricalData(coins) {
         dataPoints.push({ time: timestamp, value: score });
     }
 
-    console.log(`Generated ${dataPoints.length} data points`);
+    console.log(`Generated ${dataPoints.length} data points for ${coins.length} coins`);
     return dataPoints;
 }
 
