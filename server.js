@@ -1,96 +1,159 @@
 const express = require('express');
-const axios = require('axios');
-const path = require('path');
+const fetch = require('node-fetch');
+const WebSocket = require('ws');
+const fs = require('fs').promises;
+
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // Use Heroku's dynamic port or 3000 locally
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const wss = new WebSocket.Server({ server });
 
-app.use(express.static(path.join(__dirname, 'public')));
+const coins1 = ["solana", "bittensor", "render-network"];
+const coins2 = ["bitcoin", "ethereum", "ripple", "binance-coin", "solana", "dogecoin"];
 
-const COINGECKO_API = 'https://api.coingecko.com/api/v3';
-const coins1 = ['solana', 'bittensor', 'render-token']; // Updated 'render-network' to 'render-token'
-const coins2 = ['bitcoin', 'ethereum', 'ripple', 'binancecoin', 'solana', 'dogecoin']; // 'binance-coin' to 'binancecoin'
+let fgDataPoints1 = [];
+let fgDataPoints2 = [];
+let prevPrices1 = {};
+let prevPrices2 = {};
 
-async function fetchHistoricalData(coins) {
-    const hours = 10;
-    const secondsInHour = 3600;
+async function loadData() {
     const now = Math.floor(Date.now() / 1000);
-    const startTime = now - (hours * secondsInHour);
+    const tenHoursAgo = now - 36000; // 10 hours = 36,000 seconds
 
-    console.log(`Fetching 10 hours of data for ${coins.join(', ')} from ${new Date(startTime * 1000)} to ${new Date(now * 1000)}`);
-
-    // Fetch historical data for the last 10 hours
-    const priceHistories = await Promise.all(coins.map(async (coin, index) => {
-        // Add delay to avoid rate limits
-        await new Promise(resolve => setTimeout(resolve, index * 1000));
-        try {
-            const url = `${COINGECKO_API}/coins/${coin}/market_chart?vs_currency=usd&days=0.416667`; // ~10 hours (0.416667 days)
-            const response = await axios.get(url);
-            const prices = response.data.prices.map(([time, price]) => ({
-                time: Math.floor(time / 1000),
-                price
-            }));
-            console.log(`${coin}: Fetched ${prices.length} price points`);
-            return { coin, prices };
-        } catch (error) {
-            console.error(`Error fetching data for ${coin}:`, error.message);
-            return { coin, prices: [] };
-        }
-    }));
-
-    // Generate trend scores
-    const dataPoints = [];
-    const interval = 300; // 5-minute intervals
-    const pointsCount = Math.floor((hours * secondsInHour) / interval);
-
-    for (let i = 0; i < pointsCount; i++) {
-        const timestamp = startTime + (i * interval);
-        let numUp = 0, numDown = 0;
-        const prevPrices = {};
-
-        coins.forEach((coin, idx) => {
-            const history = priceHistories[idx].prices;
-            const current = history.find(p => p.time >= timestamp - 150 && p.time <= timestamp + 150) || history[history.length - 1];
-            if (current && prevPrices[coin] !== undefined) {
-                if (current.price > prevPrices[coin]) numUp++;
-                else if (current.price < prevPrices[coin]) numDown++;
-            }
-            if (current) prevPrices[coin] = current.price;
-        });
-
-        let score = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].value : 50;
-        if (numUp > numDown) score = Math.min(100, score + 2);
-        else if (numDown > numUp) score = Math.max(0, score - 2);
-        dataPoints.push({ time: timestamp, value: score });
+    try {
+        const data1 = await fs.readFile('fgDataPoints1.json', 'utf8');
+        fgDataPoints1 = JSON.parse(data1);
+        console.log('Loaded fgDataPoints1 from file:', fgDataPoints1.length);
+    } catch (err) {
+        console.log('No initial fgDataPoints1 found, starting fresh');
+        fgDataPoints1 = [];
     }
 
-    console.log(`Generated ${dataPoints.length} data points for ${coins.length} coins`);
-    return dataPoints;
+    try {
+        const data2 = await fs.readFile('fgDataPoints2.json', 'utf8');
+        fgDataPoints2 = JSON.parse(data2);
+        console.log('Loaded fgDataPoints2 from file:', fgDataPoints2.length);
+    } catch (err) {
+        console.log('No initial fgDataPoints2 found, starting fresh');
+        fgDataPoints2 = [];
+    }
+
+    // Ensure at least 10 hours of data (1200 points at 30s intervals)
+    if (fgDataPoints1.length < 1200 || (fgDataPoints1[0] && fgDataPoints1[0].time > tenHoursAgo)) {
+        console.log('Preloading or extending fgDataPoints1 to 10 hours');
+        const existingTimes = new Set(fgDataPoints1.map(p => p.time));
+        const newPoints = [];
+        for (let i = 0; i < 1200; i++) {
+            const time = tenHoursAgo + i * 30;
+            if (!existingTimes.has(time)) {
+                newPoints.push({ time, value: 50 }); // Neutral starting value
+            }
+        }
+        fgDataPoints1 = [...newPoints, ...fgDataPoints1].sort((a, b) => a.time - b.time);
+    }
+
+    if (fgDataPoints2.length < 1200 || (fgDataPoints2[0] && fgDataPoints2[0].time > tenHoursAgo)) {
+        console.log('Preloading or extending fgDataPoints2 to 10 hours');
+        const existingTimes = new Set(fgDataPoints2.map(p => p.time));
+        const newPoints = [];
+        for (let i = 0; i < 1200; i++) {
+            const time = tenHoursAgo + i * 30;
+            if (!existingTimes.has(time)) {
+                newPoints.push({ time, value: 50 });
+            }
+        }
+        fgDataPoints2 = [...newPoints, ...fgDataPoints2].sort((a, b) => a.time - b.time);
+    }
 }
 
-app.get('/api/chart1', async (req, res) => {
+async function saveData() {
+    // Trim to last 10 hours to avoid infinite growth
+    const tenHoursAgo = Math.floor(Date.now() / 1000) - 36000;
+    fgDataPoints1 = fgDataPoints1.filter(point => point.time >= tenHoursAgo);
+    fgDataPoints2 = fgDataPoints2.filter(point => point.time >= tenHoursAgo);
+
     try {
-        const data = await fetchHistoricalData(coins1);
-        res.json(data);
-    } catch (error) {
-        console.error('Error in /api/chart1:', error);
-        res.status(500).json({ error: 'Failed to fetch chart data' });
+        await fs.writeFile('fgDataPoints1.json', JSON.stringify(fgDataPoints1));
+        await fs.writeFile('fgDataPoints2.json', JSON.stringify(fgDataPoints2));
+        console.log('Data saved to files');
+    } catch (err) {
+        console.error('Error saving data (expected on Heroku due to ephemeral filesystem):', err);
     }
-});
+}
 
-app.get('/api/chart2', async (req, res) => {
+async function updateData() {
+    const url1 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins1.join(",")}&vs_currencies=usd`; // Added quotes
+    const url2 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins2.join(",")}&vs_currencies=usd`; // Added quotes
+
     try {
-        const data = await fetchHistoricalData(coins2);
-        res.json(data);
+        const res1 = await fetch(url1);
+        const data1 = await res1.json();
+        const now = Date.now() / 1000;
+        const estTimestamp = Math.floor(now / 30) * 30;
+        let numUp1 = 0, numDown1 = 0;
+        for (let coin of coins1) {
+            if (data1[coin] && data1[coin].usd !== undefined) {
+                let price = data1[coin].usd;
+                if (prevPrices1[coin] !== undefined) {
+                    if (price > prevPrices1[coin]) numUp1++;
+                    else if (price < prevPrices1[coin]) numDown1++;
+                }
+                prevPrices1[coin] = price;
+            }
+        }
+        let fgScore1 = fgDataPoints1.length > 0 ? fgDataPoints1[fgDataPoints1.length - 1].value : 50;
+        if (numUp1 > numDown1) fgScore1 = Math.min(100, fgScore1 + 2);
+        else if (numDown1 > numUp1) fgScore1 = Math.max(0, fgScore1 - 2);
+        fgDataPoints1.push({ time: estTimestamp, value: fgScore1 });
+
+        const res2 = await fetch(url2);
+        const data2 = await res2.json();
+        let numUp2 = 0, numDown2 = 0;
+        for (let coin of coins2) {
+            if (data2[coin] && data2[coin].usd !== undefined) {
+                let price = data2[coin].usd;
+                if (prevPrices2[coin] !== undefined) {
+                    if (price > prevPrices2[coin]) numUp2++;
+                    else if (price < prevPrices2[coin]) numDown2++;
+                }
+                prevPrices2[coin] = price;
+            }
+        }
+        let fgScore2 = fgDataPoints2.length > 0 ? fgDataPoints2[fgDataPoints2.length - 1].value : 50;
+        if (numUp2 > numDown2) fgScore2 = Math.min(100, fgScore2 + 2);
+        else if (numDown2 > numUp2) fgScore2 = Math.max(0, fgScore2 - 2);
+        fgDataPoints2.push({ time: estTimestamp, value: fgScore2 });
+
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 }));
+            }
+        });
+
+        if (Math.floor(now / 60) % 60 === 0) {
+            await saveData();
+        }
+
+        console.log(`Updated data at ${new Date(estTimestamp * 1000).toISOString()}: Chart 1 - ${fgScore1}, Chart 2 - ${fgScore2}`);
     } catch (error) {
-        console.error('Error in /api/chart2:', error);
-        res.status(500).json({ error: 'Failed to fetch chart data' });
+        console.error('Error updating data:', error);
     }
+}
+
+app.get('/data', (req, res) => {
+    res.json({ fgDataPoints1, fgDataPoints2 });
 });
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.use(express.static('public'));
+
+wss.on('connection', (ws) => {
+    ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 })); // Send initial data on connect
 });
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+async function startServer() {
+    await loadData();
+    setInterval(updateData, 30000); // Update every 30 seconds
+    updateData(); // Initial update
+}
+
+startServer();
