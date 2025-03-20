@@ -754,7 +754,6 @@ function rain() {
 }
 
 window.addEventListener('load', async function () {
-    // Start Matrix rain effect
     setInterval(rain, 30);
     window.addEventListener("resize", () => {
         w = canvas.width = window.innerWidth;
@@ -764,7 +763,6 @@ window.addEventListener('load', async function () {
         for (let i = 0; i < col; i++) arr[i] = 1;
     });
 
-    // Chart initialization
     const chart1Container = document.getElementById('chart1');
     const chart2Container = document.getElementById('chart2');
 
@@ -815,11 +813,13 @@ window.addEventListener('load', async function () {
         const cutoff = now - timeFrames[timeFrame];
         const filteredData = dataPoints.filter(point => point.time >= cutoff);
 
+        // Update color based on the latest trend
         if (filteredData.length >= 2) {
             const lastValue = filteredData[filteredData.length - 1].value;
             const prevValue = filteredData[filteredData.length - 2].value;
-            const color = lastValue > prevValue ? '#00ff00' : '#ff0000';
+            const color = lastValue > prevValue ? '#00ff00' : (lastValue < prevValue ? '#ff0000' : series.options().color);
             series.applyOptions({ color });
+            console.log(`Chart updated - Last: ${lastValue}, Prev: ${prevValue}, Color: ${color}`);
         }
 
         series.setData(filteredData);
@@ -907,7 +907,6 @@ window.addEventListener('load', async function () {
     }
     window.addEventListener('resize', resizeCharts);
 
-    // Event listeners for buttons and interactions
     const caButton = document.querySelector('.ca-button');
     const copiedMessage = document.getElementById('copied-message');
     const caString = "YOUR_LONG_STRING_HERE"; // Replace with your actual CA string
