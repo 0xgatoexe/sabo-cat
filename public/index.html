@@ -761,147 +761,132 @@
         });
     
         window.addEventListener('load', async function () {
-            const chart1Container = document.getElementById('chart1');
-            const chart2Container = document.getElementById('chart2');
-    
-            const chart1 = LightweightCharts.createChart(chart1Container, {
-                width: chart1Container.offsetWidth,
-                height: chart1Container.offsetHeight,
-                layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
-                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
-                timeScale: {
-                    timeVisible: true,
-                    secondsVisible: true,
-                    borderColor: '#00ff00',
-                    tickMarkFormatter: (time) => {
-                        const date = new Date(time * 1000);
-                        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    },
-                },
-                rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
-            });
-    
-            const chart2 = LightweightCharts.createChart(chart2Container, {
-                width: chart2Container.offsetWidth,
-                height: chart2Container.offsetHeight,
-                layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
-                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
-                timeScale: {
-                    timeVisible: true,
-                    secondsVisible: true,
-                    borderColor: '#00ff00',
-                    tickMarkFormatter: (time) => {
-                        const date = new Date(time * 1000);
-                        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    },
-                },
-                rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
-            });
-    
-            let fgSeries1 = [], fgSeries2 = [];
-            let fgDataPoints1 = [];
-            let fgDataPoints2 = [];
-            let currentTimeFrame1 = 'ALL';
-            let currentTimeFrame2 = 'ALL';
-    
-            function updateChart(chart, dataPoints, seriesArray, timeFrame) {
-                const now = Math.floor(Date.now() / 1000);
-                const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
-                const cutoff = now - timeFrames[timeFrame];
-                const filteredData = dataPoints.filter(point => point.time >= cutoff);
-    
-                seriesArray.forEach(s => chart.removeSeries(s.series));
-                seriesArray.length = 0;
-    
-                let currentSeries = null;
-                for (let i = 0; i < filteredData.length; i++) {
-                    if (i === 0 || filteredData[i].value !== filteredData[i - 1].value) {
-                        const color = i > 0 && filteredData[i].value > filteredData[i - 1].value ? '#00ff00' : '#ff0000';
-                        currentSeries = chart.addLineSeries({
-                            color: color,
-                            lineWidth: 2,
-                            priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
-                        });
-                        seriesArray.push({ series: currentSeries, color: color });
-                    }
-                    currentSeries.setData(filteredData.slice(0, i + 1));
-                }
-                chart.timeScale().fitContent();
-            }
-    
-            async function fetchInitialData() {
-                try {
-                    const response = await fetch('/data');
-                    const data = await response.json();
-                    fgDataPoints1 = data.fgDataPoints1 || [];
-                    fgDataPoints2 = data.fgDataPoints2 || [];
-                    console.log('Initial data fetched:', fgDataPoints1.length, fgDataPoints2.length);
-                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
-                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
-                } catch (error) {
-                    console.error('Error fetching initial data:', error);
-                    fgDataPoints1 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 100 }];
-                    fgDataPoints2 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 50 }];
-                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
-                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
-                }
-            }
-    
-            const wsUrl = window.location.protocol === 'https:' ? 'wss://' + window.location.host : 'ws://' + window.location.host;
-            const ws = new WebSocket(wsUrl);
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                if (data.fgDataPoints1 && data.fgDataPoints1.length > 0) {
-                    fgDataPoints1 = data.fgDataPoints1;
-                    updateChart(chart1, fgDataPoints1, fgSeries1, currentTimeFrame1);
-                }
-                if (data.fgDataPoints2 && data.fgDataPoints2.length > 0) {
-                    fgDataPoints2 = data.fgDataPoints2;
-                    updateChart(chart2, fgDataPoints2, fgSeries2, currentTimeFrame2);
-                }
-                console.log('WebSocket data received:', data);
-            };
-            ws.onopen = () => console.log('WebSocket connected');
-            ws.onerror = (error) => console.error('WebSocket error:', error);
-            ws.onclose = () => console.log('WebSocket closed');
-    
-            function createTimeFrameSelector(chartNum, chart, dataPoints, seriesArray) {
-                const container = document.getElementById(`chart${chartNum}`).parentElement;
-                const selector = document.createElement('select');
-                selector.style.position = 'absolute';
-                selector.style.top = '10px';
-                selector.style.right = '10px';
-                selector.style.background = '#1a1a1a';
-                selector.style.color = '#00ff00';
-                selector.style.border = '1px solid #00ff00';
-                selector.style.padding = '5px';
-                const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
-                for (const [label] of Object.entries(timeFrames)) {
-                    const option = document.createElement('option');
-                    option.value = label;
-                    option.text = label;
-                    selector.appendChild(option);
-                }
-                selector.value = 'ALL';
-                container.style.position = 'relative';
-                container.appendChild(selector);
-    
-                selector.addEventListener('change', () => {
-                    if (chartNum === 1) currentTimeFrame1 = selector.value;
-                    else currentTimeFrame2 = selector.value;
-                    updateChart(chart, dataPoints, seriesArray, selector.value);
-                });
-            }
-    
-            await fetchInitialData();
-            createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
-            createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
-    
-            function resizeCharts() {
-                chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
-                chart2.resize(chart2Container.offsetWidth, chart2Container.offsetHeight);
-            }
-            window.addEventListener('resize', resizeCharts);
+    const chart1Container = document.getElementById('chart1');
+    const chart2Container = document.getElementById('chart2');
+
+    const chart1 = LightweightCharts.createChart(chart1Container, {
+        width: chart1Container.offsetWidth,
+        height: chart1Container.offsetHeight,
+        layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
+        grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
+        timeScale: {
+            timeVisible: true,
+            secondsVisible: true,
+            borderColor: '#00ff00',
+            tickMarkFormatter: (time) => {
+                const date = new Date(time * 1000);
+                return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            },
+        },
+        rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
+    });
+
+    const chart2 = LightweightCharts.createChart(chart2Container, {
+        width: chart2Container.offsetWidth,
+        height: chart2Container.offsetHeight,
+        layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
+        grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
+        timeScale: {
+            timeVisible: true,
+            secondsVisible: true,
+            borderColor: '#00ff00',
+            tickMarkFormatter: (time) => {
+                const date = new Date(time * 1000);
+                return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            },
+        },
+        rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
+    });
+
+    const series1 = chart1.addLineSeries({ color: '#00ff00', lineWidth: 2 });
+    const series2 = chart2.addLineSeries({ color: '#00ff00', lineWidth: 2 });
+    let fgDataPoints1 = [];
+    let fgDataPoints2 = [];
+    let currentTimeFrame1 = 'ALL';
+    let currentTimeFrame2 = 'ALL';
+
+    function updateChart(chart, series, dataPoints, timeFrame) {
+        const now = Math.floor(Date.now() / 1000);
+        const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
+        const cutoff = now - timeFrames[timeFrame];
+        const filteredData = dataPoints.filter(point => point.time >= cutoff);
+        series.setData(filteredData);
+        chart.timeScale().fitContent();
+    }
+
+    async function fetchInitialData() {
+        try {
+            const response = await fetch('/data');
+            const data = await response.json();
+            fgDataPoints1 = data.fgDataPoints1 || [];
+            fgDataPoints2 = data.fgDataPoints2 || [];
+            console.log('Initial data fetched:', fgDataPoints1.length, fgDataPoints2.length);
+            updateChart(chart1, series1, fgDataPoints1, currentTimeFrame1);
+            updateChart(chart2, series2, fgDataPoints2, currentTimeFrame2);
+        } catch (error) {
+            console.error('Error fetching initial data:', error);
+            fgDataPoints1 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 50 }];
+            fgDataPoints2 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 50 }];
+            updateChart(chart1, series1, fgDataPoints1, currentTimeFrame1);
+            updateChart(chart2, series2, fgDataPoints2, currentTimeFrame2);
+        }
+    }
+
+    const wsUrl = window.location.protocol === 'https:' ? 'wss://' + window.location.host : 'ws://' + window.location.host;
+    const ws = new WebSocket(wsUrl);
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.fgDataPoints1 && data.fgDataPoints1.length > 0) {
+            fgDataPoints1 = data.fgDataPoints1;
+            updateChart(chart1, series1, fgDataPoints1, currentTimeFrame1);
+        }
+        if (data.fgDataPoints2 && data.fgDataPoints2.length > 0) {
+            fgDataPoints2 = data.fgDataPoints2;
+            updateChart(chart2, series2, fgDataPoints2, currentTimeFrame2);
+        }
+        console.log('WebSocket data received:', data);
+    };
+    ws.onopen = () => console.log('WebSocket connected');
+    ws.onerror = (error) => console.error('WebSocket error:', error);
+    ws.onclose = () => console.log('WebSocket closed');
+
+    function createTimeFrameSelector(chartNum, chart, series, dataPoints) {
+        const container = document.getElementById(`chart${chartNum}`).parentElement;
+        const selector = document.createElement('select');
+        selector.style.position = 'absolute';
+        selector.style.top = '10px';
+        selector.style.right = '10px';
+        selector.style.background = '#1a1a1a';
+        selector.style.color = '#00ff00';
+        selector.style.border = '1px solid #00ff00';
+        selector.style.padding = '5px';
+        const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
+        for (const [label] of Object.entries(timeFrames)) {
+            const option = document.createElement('option');
+            option.value = label;
+            option.text = label;
+            selector.appendChild(option);
+        }
+        selector.value = 'ALL';
+        container.style.position = 'relative';
+        container.appendChild(selector);
+
+        selector.addEventListener('change', () => {
+            if (chartNum === 1) currentTimeFrame1 = selector.value;
+            else currentTimeFrame2 = selector.value;
+            updateChart(chart, series, dataPoints, selector.value);
+        });
+    }
+
+    await fetchInitialData();
+    createTimeFrameSelector(1, chart1, series1, fgDataPoints1);
+    createTimeFrameSelector(2, chart2, series2, fgDataPoints2);
+
+    function resizeCharts() {
+        chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
+        chart2.resize(chart2Container.offsetWidth, chart2Container.offsetHeight);
+    }
+    window.addEventListener('resize', resizeCharts);
     
             const caButton = document.querySelector('.ca-button');
             const copiedMessage = document.getElementById('copied-message');

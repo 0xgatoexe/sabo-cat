@@ -17,26 +17,25 @@ let prevPrices2 = {};
 
 async function loadData() {
     const now = Math.floor(Date.now() / 1000);
-    const tenHoursAgo = now - 36000; // 10 hours = 36,000 seconds
-    const points = 1200; // 10 hours at 30-second intervals
+    const oneHourAgo = now - 3600; // 1 hour = 3600 seconds
+    const points = 120; // 1 hour at 30-second intervals
 
     if (fgDataPoints1.length === 0) {
-        console.log('Preloading fgDataPoints1 with 10 hours of simulated data');
-        let currentValue = 50; // Starting value
+        console.log('Preloading fgDataPoints1 with 1 hour of simulated data');
+        let currentValue = 50;
         for (let i = 0; i < points; i++) {
-            const time = tenHoursAgo + i * 30;
-            // Simulate a random walk: +2 or -2 with bounds 0-100
+            const time = oneHourAgo + i * 30;
             currentValue += Math.random() > 0.5 ? 2 : -2;
-            currentValue = Math.max(0, Math.min(100, currentValue)); // Clamp between 0 and 100
+            currentValue = Math.max(0, Math.min(100, currentValue));
             fgDataPoints1.push({ time, value: Math.round(currentValue) });
         }
     }
 
     if (fgDataPoints2.length === 0) {
-        console.log('Preloading fgDataPoints2 with 10 hours of simulated data');
-        let currentValue = 50; // Starting value
+        console.log('Preloading fgDataPoints2 with 1 hour of simulated data');
+        let currentValue = 50;
         for (let i = 0; i < points; i++) {
-            const time = tenHoursAgo + i * 30;
+            const time = oneHourAgo + i * 30;
             currentValue += Math.random() > 0.5 ? 2 : -2;
             currentValue = Math.max(0, Math.min(100, currentValue));
             fgDataPoints2.push({ time, value: Math.round(currentValue) });
@@ -68,7 +67,7 @@ async function updateData() {
         if (numUp1 > numDown1) fgScore1 = Math.min(100, fgScore1 + 2);
         else if (numDown1 > numUp1) fgScore1 = Math.max(0, fgScore1 - 2);
         fgDataPoints1.push({ time: estTimestamp, value: fgScore1 });
-        fgDataPoints1 = fgDataPoints1.filter(p => p.time >= now - 36000); // Keep only last 10 hours
+        fgDataPoints1 = fgDataPoints1.filter(p => p.time >= now - 36000); // Keep 10 hours max
 
         const res2 = await fetch(url2);
         const data2 = await res2.json();
@@ -87,7 +86,7 @@ async function updateData() {
         if (numUp2 > numDown2) fgScore2 = Math.min(100, fgScore2 + 2);
         else if (numDown2 > numUp2) fgScore2 = Math.max(0, fgScore2 - 2);
         fgDataPoints2.push({ time: estTimestamp, value: fgScore2 });
-        fgDataPoints2 = fgDataPoints2.filter(p => p.time >= now - 36000); // Keep only last 10 hours
+        fgDataPoints2 = fgDataPoints2.filter(p => p.time >= now - 36000); // Keep 10 hours max
 
         wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
