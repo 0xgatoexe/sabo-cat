@@ -1,7 +1,6 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const WebSocket = require('ws');
-const fs = require('fs').promises;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,63 +18,19 @@ let prevPrices2 = {};
 async function loadData() {
     const now = Math.floor(Date.now() / 1000);
     const tenHoursAgo = now - 36000;
-
-    try {
-        const data1 = await fs.readFile('fgDataPoints1.json', 'utf8');
-        fgDataPoints1 = JSON.parse(data1);
-        console.log('Loaded fgDataPoints1 from file:', fgDataPoints1.length);
-    } catch (err) {
-        console.log('No initial fgDataPoints1 found, starting fresh');
-        fgDataPoints1 = [];
-    }
-
-    try {
-        const data2 = await fs.readFile('fgDataPoints2.json', 'utf8');
-        fgDataPoints2 = JSON.parse(data2);
-        console.log('Loaded fgDataPoints2 from file:', fgDataPoints2.length);
-    } catch (err) {
-        console.log('No initial fgDataPoints2 found, starting fresh');
-        fgDataPoints2 = [];
-    }
-
-    if (fgDataPoints1.length < 1200 || (fgDataPoints1[0] && fgDataPoints1[0].time > tenHoursAgo)) {
-        console.log('Preloading or extending fgDataPoints1 to 10 hours');
-        const existingTimes = new Set(fgDataPoints1.map(p => p.time));
-        const newPoints = [];
+    if (fgDataPoints1.length === 0) {
+        console.log('Initializing fgDataPoints1 with 10 hours of data');
         for (let i = 0; i < 1200; i++) {
             const time = tenHoursAgo + i * 30;
-            if (!existingTimes.has(time)) {
-                newPoints.push({ time, value: 50 });
-            }
+            fgDataPoints1.push({ time, value: 50 });
         }
-        fgDataPoints1 = [...newPoints, ...fgDataPoints1].sort((a, b) => a.time - b.time);
     }
-
-    if (fgDataPoints2.length < 1200 || (fgDataPoints2[0] && fgDataPoints2[0].time > tenHoursAgo)) {
-        console.log('Preloading or extending fgDataPoints2 to 10 hours');
-        const existingTimes = new Set(fgDataPoints2.map(p => p.time));
-        const newPoints = [];
+    if (fgDataPoints2.length === 0) {
+        console.log('Initializing fgDataPoints2 with 10 hours of data');
         for (let i = 0; i < 1200; i++) {
             const time = tenHoursAgo + i * 30;
-            if (!existingTimes.has(time)) {
-                newPoints.push({ time, value: 50 });
-            }
+            fgDataPoints2.push({ time, value: 50 });
         }
-        fgDataPoints2 = [...newPoints, ...fgDataPoints2].sort((a, b) => a.time - b.time);
-    }
-}
-
-async function saveData() {
-    const tenHoursAgo = Math.floor(Date.now() / 1000) - 36000;
-    fgDataPoints1 = fgDataPoints1.filter(point => point.time >= tenHoursAgo);
-    fgDataPoints2 = fgDataPoints2.filter(point => point.time >= tenHoursAgo);
-
-    try {
-        await fs.writeFile('fgDataPoints1.json', JSON.stringify(fgDataPoints1));
-        await fs.writeFile('fgDataPoints2.json', JSON.stringify(fgDataPoints2));
-        console.log('Data saved to files');
-    } catch (err) {
-        console.error('Error saving data (expected on Heroku):', err);
     }
 }
 
@@ -128,29 +83,15 @@ async function updateData() {
             }
         });
 
-        if (Math.floor(now / 60) % 60 === 0) {
-            await saveData();
-        }
-
         console.log(`Updated data at ${new Date(estTimestamp * 1000).toISOString()}: Chart 1 - ${fgScore1}, Chart 2 - ${fgScore2}`);
     } catch (error) {
         console.error('Error updating data:', error);
     }
 }
 
-// Updated endpoints to match index.html
-app.get('/api/chart1', (req, res) => {
-    res.json(fgDataPoints1);
-});
-
-app.get('/api/chart2', (req, res) => {
-    res.json(fgDataPoints2);
-});
-
-// Keep the old /data endpoint for compatibility
-app.get('/data', (req, res) => {
-    res.json({ fgDataPoints1, fgDataPoints2 });
-});
+app.get('/api/chart1', (req, res) => res.json(fgDataPoints1));
+app.get('/api/chart2', (req, res) => res.json(fgDataPoints2));
+app.get('/data', (req, res) => res.json({ fgDataPoints1, fgDataPoints2 }));
 
 app.use(express.static('public'));
 

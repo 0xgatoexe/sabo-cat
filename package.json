@@ -1,15 +1,16 @@
 {
-  "name": "sabo-cat-app",
+  "name": "sabo-cat",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-      "start": "node server.js"
-  },
-  "engines": {
-      "node": "18.x"
+    "start": "node server.js"
   },
   "dependencies": {
-      "express": "^4.18.2",
-      "axios": "^1.6.8"
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.12",
+    "ws": "^8.14.2"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
