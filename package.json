@@ -1,17 +1,15 @@
 {
-  "name": "sabo-cat",
+  "name": "sabo-cat-app",
   "version": "1.0.0",
-  "description": "Sabo Cat Market Wizard",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "ws": "^8.14.2",
-    "node-fetch": "2.6.12"
+      "start": "node server.js"
   },
   "engines": {
-    "node": "20.x"
+      "node": "18.x" // Specify your Node.js version (check with `node -v` locally)
+  },
+  "dependencies": {
+      "express": "^4.18.2",
+      "axios": "^1.6.8"
   }
 }
