@@ -17,8 +17,8 @@ let prevPrices2 = {};
 
 async function loadData() {
     const now = Math.floor(Date.now() / 1000);
-    const oneHourAgo = now - 3600; // 1 hour = 3600 seconds
-    const points = 120; // 1 hour at 30-second intervals
+    const oneHourAgo = now - 3600;
+    const points = 120;
 
     if (fgDataPoints1.length === 0) {
         console.log('Preloading fgDataPoints1 with 1 hour of simulated data');
@@ -44,6 +44,7 @@ async function loadData() {
 }
 
 async function updateData() {
+    console.log('Starting updateData at', new Date().toISOString());
     const url1 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins1.join(",")}&vs_currencies=usd`;
     const url2 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins2.join(",")}&vs_currencies=usd`;
 
@@ -67,7 +68,7 @@ async function updateData() {
         if (numUp1 > numDown1) fgScore1 = Math.min(100, fgScore1 + 2);
         else if (numDown1 > numUp1) fgScore1 = Math.max(0, fgScore1 - 2);
         fgDataPoints1.push({ time: estTimestamp, value: fgScore1 });
-        fgDataPoints1 = fgDataPoints1.filter(p => p.time >= now - 36000); // Keep 10 hours max
+        fgDataPoints1 = fgDataPoints1.filter(p => p.time >= now - 36000);
 
         const res2 = await fetch(url2);
         const data2 = await res2.json();
@@ -86,11 +87,13 @@ async function updateData() {
         if (numUp2 > numDown2) fgScore2 = Math.min(100, fgScore2 + 2);
         else if (numDown2 > numUp2) fgScore2 = Math.max(0, fgScore2 - 2);
         fgDataPoints2.push({ time: estTimestamp, value: fgScore2 });
-        fgDataPoints2 = fgDataPoints2.filter(p => p.time >= now - 36000); // Keep 10 hours max
+        fgDataPoints2 = fgDataPoints2.filter(p => p.time >= now - 36000);
 
+        console.log(`Broadcasting to ${wss.clients.size} clients`);
         wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 }));
+                console.log('Data sent to client');
             }
         });
 
@@ -107,6 +110,7 @@ app.get('/data', (req, res) => res.json({ fgDataPoints1, fgDataPoints2 }));
 app.use(express.static('public'));
 
 wss.on('connection', (ws) => {
+    console.log('New WebSocket connection established');
     ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 }));
 });
 

@@ -833,9 +833,14 @@
     }
 
     const wsUrl = window.location.protocol === 'https:' ? 'wss://' + window.location.host : 'ws://' + window.location.host;
+    console.log('Attempting WebSocket connection to:', wsUrl);
     const ws = new WebSocket(wsUrl);
+    ws.onopen = () => {
+        console.log('WebSocket connected');
+    };
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
+        console.log('WebSocket data received:', data);
         if (data.fgDataPoints1 && data.fgDataPoints1.length > 0) {
             fgDataPoints1 = data.fgDataPoints1;
             updateChart(chart1, series1, fgDataPoints1, currentTimeFrame1);
@@ -844,11 +849,18 @@
             fgDataPoints2 = data.fgDataPoints2;
             updateChart(chart2, series2, fgDataPoints2, currentTimeFrame2);
         }
-        console.log('WebSocket data received:', data);
     };
-    ws.onopen = () => console.log('WebSocket connected');
-    ws.onerror = (error) => console.error('WebSocket error:', error);
-    ws.onclose = () => console.log('WebSocket closed');
+    ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        // Fallback to polling every 30 seconds
+        setInterval(async () => {
+            await fetchInitialData();
+            console.log('Polling update triggered');
+        }, 30000);
+    };
+    ws.onclose = () => {
+        console.log('WebSocket closed');
+    };
 
     function createTimeFrameSelector(chartNum, chart, series, dataPoints) {
         const container = document.getElementById(`chart${chartNum}`).parentElement;
