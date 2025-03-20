@@ -14,6 +14,7 @@ let fgDataPoints1 = [];
 let fgDataPoints2 = [];
 let prevPrices1 = {};
 let prevPrices2 = {};
+let leaderboard = []; // Array to store { id, clicks }
 
 async function loadData() {
     const now = Math.floor(Date.now() / 1000);
@@ -92,8 +93,7 @@ async function updateData() {
         console.log(`Broadcasting to ${wss.clients.size} clients`);
         wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 }));
-                console.log('Data sent to client');
+                client.send(JSON.stringify({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
             }
         });
 
@@ -103,15 +103,47 @@ async function updateData() {
     }
 }
 
+// Leaderboard functions
+function updateLeaderboard(userId, clicks) {
+    const existing = leaderboard.find(entry => entry.id === userId);
+    if (existing) {
+        existing.clicks = clicks;
+    } else {
+        leaderboard.push({ id: userId, clicks });
+    }
+    leaderboard.sort((a, b) => b.clicks - a.clicks); // Sort descending by clicks
+}
+
+function getTop10Leaderboard() {
+    return leaderboard.slice(0, 10); // Return top 10
+}
+
+// Endpoints
 app.get('/api/chart1', (req, res) => res.json(fgDataPoints1));
 app.get('/api/chart2', (req, res) => res.json(fgDataPoints2));
-app.get('/data', (req, res) => res.json({ fgDataPoints1, fgDataPoints2 }));
+app.get('/data', (req, res) => res.json({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
+
+// New endpoint to update clicks
+app.post('/api/click', express.json(), (req, res) => {
+    const { userId, clicks } = req.body;
+    if (userId && typeof clicks === 'number') {
+        updateLeaderboard(userId, clicks);
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ leaderboard: getTop10Leaderboard() }));
+            }
+        });
+        res.status(200).json({ success: true });
+    } else {
+        res.status(400).json({ error: 'Invalid request' });
+    }
+});
 
 app.use(express.static('public'));
 
 wss.on('connection', (ws) => {
-    console.log('New WebSocket connection established');
-    ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2 }));
+    console.log('New WebSocket connection');
+    ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
 });
 
 async function startServer() {

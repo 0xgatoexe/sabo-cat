@@ -569,6 +569,33 @@
                 font-size: clamp(0.6rem, 1.4vw, 0.9rem);
                 margin: 0.1rem 0;
             }
+            .leaderboard {
+                width: 90%;
+                max-width: 400px;
+                background: #1a1a1a;
+                padding: 1rem;
+                margin: 1rem auto;
+                border: 1px solid #00ff00;
+                border-radius: 5px;
+                color: #00ff00;
+                font-family: 'main', sans-serif;
+            }
+            .leaderboard h2 {
+                color: #00ff00;
+                font-size: clamp(1rem, 2.5vw, 1.5rem);
+                text-align: center;
+                margin-bottom: 0.5rem;
+                text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+            }
+            .leaderboard ul {
+                list-style: none;
+                padding: 0;
+            }
+            .leaderboard li {
+                font-size: clamp(0.8rem, 2vw, 1rem);
+                margin: 0.3rem 0;
+                text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
+            }
         }
     </style>
 </head>
@@ -626,6 +653,10 @@
                 <span>$SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI • MARKET WIZARD • $SABO CAT AI</span>
             </div>
         </div>
+    </div>
+    <div id="leaderboard" class="leaderboard">
+        <h2>Top 10 Clickers</h2>
+        <ul id="leaderboard-list"></ul>
     </div>
     <img src="/images/sabo-cat-twitter-banner.png" alt="Sabo Cat Twitter Banner" class="twitter-banner">
     <div class="solana-marquee">
@@ -864,6 +895,16 @@ window.addEventListener('load', async function () {
         chart.timeScale().fitContent();
     }
 
+    function updateLeaderboardDisplay(leaderboardData) {
+        const leaderboardList = document.getElementById('leaderboard-list');
+        leaderboardList.innerHTML = '';
+        leaderboardData.forEach((entry, index) => {
+            const li = document.createElement('li');
+            li.textContent = `${index + 1}. User ${entry.id.slice(0, 8)}...: ${entry.clicks} clicks`;
+            leaderboardList.appendChild(li);
+        });
+    }
+
     async function fetchInitialData() {
         try {
             const response = await fetch('/data');
@@ -876,6 +917,8 @@ window.addEventListener('load', async function () {
             const candlesticks2 = convertToCandlestick(fgDataPoints2);
             series1.setData(candlesticks1);
             series2.setData(candlesticks2);
+
+            if (data.leaderboard) updateLeaderboardDisplay(data.leaderboard);
         } catch (error) {
             console.error('Error fetching initial data:', error);
             fgDataPoints1 = [{ time: Math.floor(Date.now() / 1000) - 60, value: 50 }];
@@ -901,6 +944,9 @@ window.addEventListener('load', async function () {
         if (data.fgDataPoints2 && data.fgDataPoints2.length > 0) {
             fgDataPoints2 = data.fgDataPoints2;
             updateChart(chart2, series2, fgDataPoints2);
+        }
+        if (data.leaderboard) {
+            updateLeaderboardDisplay(data.leaderboard);
         }
     };
     ws.onerror = (error) => {
@@ -983,17 +1029,32 @@ window.addEventListener('load', async function () {
         }
     });
 
+    // Leaderboard click tracking
     const transparencyImg = document.querySelector('#matrix-image img:first-child');
     const staffImg = document.querySelector('#matrix-image img:last-child');
     let rotationCount = 0;
     let clickCount = 0;
-    function rotateStaff() {
+    const userId = Math.random().toString(36).substring(2); // Simple random ID for this session
+
+    async function rotateStaff() {
         clickCount++;
         rotationCount = (rotationCount + 1) % 8;
         const rotationAngle = rotationCount * 45;
         staffImg.style.transform = `rotate(${rotationAngle}deg)`;
         document.getElementById('counter-button').textContent = `Counter: ${clickCount}`;
+
+        // Send click update to server
+        try {
+            await fetch('/api/click', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, clicks: clickCount })
+            });
+        } catch (error) {
+            console.error('Error updating clicks:', error);
+        }
     }
+
     transparencyImg.addEventListener('click', rotateStaff);
     staffImg.addEventListener('click', rotateStaff);
 });
