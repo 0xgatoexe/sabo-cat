@@ -760,7 +760,7 @@
             for(let i = 0; i < col; i++) arr[i] = 1;
         });
     
-        window.addEventListener('load', async function () {
+window.addEventListener('load', async function () {
     const chart1Container = document.getElementById('chart1');
     const chart2Container = document.getElementById('chart2');
 
@@ -810,6 +810,15 @@
         const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
         const cutoff = now - timeFrames[timeFrame];
         const filteredData = dataPoints.filter(point => point.time >= cutoff);
+
+        // Update series color based on trend
+        if (filteredData.length >= 2) {
+            const lastValue = filteredData[filteredData.length - 1].value;
+            const prevValue = filteredData[filteredData.length - 2].value;
+            const color = lastValue > prevValue ? '#00ff00' : '#ff0000'; // Green if up, red if down
+            series.applyOptions({ color });
+        }
+
         series.setData(filteredData);
         chart.timeScale().fitContent();
     }
@@ -852,7 +861,6 @@
     };
     ws.onerror = (error) => {
         console.error('WebSocket error:', error);
-        // Fallback to polling every 30 seconds
         setInterval(async () => {
             await fetchInitialData();
             console.log('Polling update triggered');
@@ -899,6 +907,10 @@
         chart2.resize(chart2Container.offsetWidth, chart2Container.offsetHeight);
     }
     window.addEventListener('resize', resizeCharts);
+
+    // Rest of your event listeners (caButton, mailLogo, etc.) remain unchanged
+    // ...
+});
     
             const caButton = document.querySelector('.ca-button');
             const copiedMessage = document.getElementById('copied-message');
