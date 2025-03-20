@@ -6,7 +6,7 @@
       "start": "node server.js"
   },
   "engines": {
-      "node": "18.x" // Specify your Node.js version (check with `node -v` locally)
+      "node": "18.x"
   },
   "dependencies": {
       "express": "^4.18.2",
