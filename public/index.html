@@ -820,26 +820,55 @@
             let fgDataPoints1 = [];
             let fgDataPoints2 = [];
     
-            // Fetch preloaded data from server
             async function fetchPreloadedData() {
-    const baseUrl = window.location.origin; // Dynamically gets the deployed URL (e.g., https://sabo-cat-app.herokuapp.com)
-    try {
-        const [response1, response2] = await Promise.all([
-            fetch(`${baseUrl}/api/chart1`),
-            fetch(`${baseUrl}/api/chart2`)
-        ]);
-        fgDataPoints1 = await response1.json();
-        fgDataPoints2 = await response2.json();
-
-        updateChart(chart1, fgDataPoints1, fgSeries1, 'ALL');
-        updateChart(chart2, fgDataPoints2, fgSeries2, 'ALL');
-    } catch (error) {
-        console.error('Error fetching preloaded data:', error);
-    }
-}
+                const baseUrl = window.location.origin;
+                try {
+                    const [response1, response2] = await Promise.all([
+                        fetch(`${baseUrl}/api/chart1`),
+                        fetch(`${baseUrl}/api/chart2`)
+                    ]);
+                    fgDataPoints1 = await response1.json();
+                    fgDataPoints2 = await response2.json();
     
-            // Update chart function
+                    console.log('Initial Chart 1 data:', fgDataPoints1);
+                    console.log('Initial Chart 2 data:', fgDataPoints2);
+    
+                    updateChart(chart1, fgDataPoints1, fgSeries1, 'ALL');
+                    updateChart(chart2, fgDataPoints2, fgSeries2, 'ALL');
+                } catch (error) {
+                    console.error('Error fetching preloaded data:', error);
+                }
+            }
+    
+            async function fetchRealTimeData() {
+                const baseUrl = window.location.origin;
+                try {
+                    const [response1, response2] = await Promise.all([
+                        fetch(`${baseUrl}/api/chart1`),
+                        fetch(`${baseUrl}/api/chart2`)
+                    ]);
+                    const newData1 = await response1.json();
+                    const newData2 = await response2.json();
+    
+                    // Append only the latest point to avoid duplicating history
+                    const latestPoint1 = newData1[newData1.length - 1];
+                    const latestPoint2 = newData2[newData2.length - 1];
+    
+                    if (fgDataPoints1.length === 0 || fgDataPoints1[fgDataPoints1.length - 1].time < latestPoint1.time) {
+                        fgDataPoints1.push(latestPoint1);
+                        updateChart(chart1, fgDataPoints1, fgSeries1, 'ALL');
+                    }
+                    if (fgDataPoints2.length === 0 || fgDataPoints2[fgDataPoints2.length - 1].time < latestPoint2.time) {
+                        fgDataPoints2.push(latestPoint2);
+                        updateChart(chart2, fgDataPoints2, fgSeries2, 'ALL');
+                    }
+                } catch (error) {
+                    console.error('Error fetching real-time data:', error);
+                }
+            }
+    
             function updateChart(chart, dataPoints, seriesArray, timeFrame) {
+                console.log(`Updating chart with ${dataPoints.length} points`);
                 const now = Math.floor(Date.now() / 1000);
                 const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
                 const cutoff = now - timeFrames[timeFrame];
@@ -891,10 +920,11 @@
                 });
             }
     
-            // Initialize charts with preloaded data
+            // Initialize charts with preloaded data and start real-time updates
             await fetchPreloadedData();
             createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
             createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
+            setInterval(fetchRealTimeData, 30000); // Update every 30 seconds
     
             // Resize charts on window resize
             function resizeCharts() {
@@ -903,7 +933,7 @@
             }
             window.addEventListener('resize', resizeCharts);
     
-            // Remaining event listeners (CA button, mail, etc.) remain unchanged
+            // Remaining event listeners
             const caButton = document.querySelector('.ca-button');
             const copiedMessage = document.getElementById('copied-message');
             const caString = "YOUR_LONG_STRING_HERE";
