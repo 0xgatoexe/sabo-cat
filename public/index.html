@@ -569,39 +569,40 @@
                 font-size: clamp(0.6rem, 1.4vw, 0.9rem);
                 margin: 0.1rem 0;
             }
-            #leaderboard.leaderboard {
+            #leaderboard {
     width: 90%;
     max-width: 400px;
     background: #1a1a1a;
     padding: 1rem;
-    margin: 1rem auto; /* Centers the container */
+    margin: 1rem auto;
     border: 1px solid #00ff00;
     border-radius: 5px;
     font-family: 'main', sans-serif;
-    text-align: center; /* Centers all text content */
+    text-align: center !important;
 }
 
-#leaderboard.leaderboard h2 {
-    color: #00ff00; /* Green for the title */
+#leaderboard h2 {
+    color: #00ff00 !important;
     font-size: clamp(1rem, 2.5vw, 1.5rem);
     margin-bottom: 0.5rem;
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
-    text-align: center;
+    text-align: center !important;
 }
 
-#leaderboard.leaderboard ul#leaderboard-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    text-align: center; /* Ensure the list itself is centered */
+#leaderboard #leaderboard-list {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    text-align: center !important;
 }
 
-#leaderboard.leaderboard ul#leaderboard-list li {
-    color: #ffffff !important; /* Force white color */
-    font-size: clamp(0.8rem, 2vw, 1rem);
-    margin: 0.3rem 0;
-    text-align: center !important; /* Force centering */
-    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5); /* Optional glow for visibility */
+#leaderboard #leaderboard-list li {
+    color: #ffffff !important; /* Force white */
+    font-size: clamp(0.8rem, 2vw, 1rem) !important;
+    margin: 0.3rem 0 !important;
+    text-align: center !important; /* Force center */
+    background: none !important; /* Prevent background interference */
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5) !important; /* Ensure visibility */
 }
         }
     </style>
@@ -903,21 +904,28 @@ window.addEventListener('load', async function () {
     }
 
     function updateLeaderboardDisplay(leaderboardData) {
-        console.log('Updating leaderboard with:', leaderboardData); // Debug log
-        const leaderboardList = document.getElementById('leaderboard-list');
-        leaderboardList.innerHTML = '';
-        if (leaderboardData && leaderboardData.length > 0) {
-            leaderboardData.forEach((entry, index) => {
-                const li = document.createElement('li');
-                li.textContent = `${index + 1}. User ${entry.id.slice(0, 8)}...: ${entry.clicks} clicks`;
-                leaderboardList.appendChild(li);
-            });
-        } else {
+    console.log('Updating leaderboard with:', leaderboardData); // Debug log
+    const leaderboardList = document.getElementById('leaderboard-list');
+    leaderboardList.innerHTML = ''; // Clear existing content
+    if (leaderboardData && leaderboardData.length > 0) {
+        leaderboardData.forEach((entry, index) => {
             const li = document.createElement('li');
-            li.textContent = 'No clickers yet!';
+            li.textContent = `${index + 1}. User ${entry.id.slice(0, 8)}...: ${entry.clicks} clicks`;
+            // Apply inline styles as a fallback
+            li.style.color = '#ffffff'; // White font
+            li.style.textAlign = 'center'; // Center text
+            li.style.display = 'block'; // Ensure it behaves as a block for centering
             leaderboardList.appendChild(li);
-        }
+        });
+    } else {
+        const li = document.createElement('li');
+        li.textContent = 'No clickers yet!';
+        li.style.color = '#ffffff'; // White font
+        li.style.textAlign = 'center'; // Center text
+        li.style.display = 'block';
+        leaderboardList.appendChild(li);
     }
+}
 
     async function fetchInitialData() {
         try {
