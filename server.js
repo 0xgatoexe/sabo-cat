@@ -7,14 +7,14 @@ const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const wss = new WebSocket.Server({ server });
 
-const coins1 = ["solana", "bittensor", "render-network"];
-const coins2 = ["bitcoin", "ethereum", "ripple", "binance-coin", "solana", "dogecoin"];
+const coins1 = ["solana", "bittensor", "render-token"]; // Note: "render-network" might need to be "render-token"
+const coins2 = ["bitcoin", "ethereum", "ripple", "binancecoin", "solana", "dogecoin"]; // Adjusted for CoinGecko IDs
 
 let fgDataPoints1 = [];
 let fgDataPoints2 = [];
 let prevPrices1 = {};
-let prevPrices2 = {};
-let leaderboard = []; // Array to store { id, clicks }
+let prevPrices2 = [];
+let leaderboard = [];
 
 async function loadData() {
     const now = Math.floor(Date.now() / 1000);
@@ -28,7 +28,7 @@ async function loadData() {
             const time = oneHourAgo + i * 30;
             currentValue += Math.random() > 0.5 ? 2 : -2;
             currentValue = Math.max(0, Math.min(100, currentValue));
-            fgDataPoints1.push({ time, value: Math.round(currentValue) });
+            fgDataPoints1.push({ time, value: Math.round(currentValue), volume: Math.floor(Math.random() * 1000) });
         }
     }
 
@@ -39,55 +39,56 @@ async function loadData() {
             const time = oneHourAgo + i * 30;
             currentValue += Math.random() > 0.5 ? 2 : -2;
             currentValue = Math.max(0, Math.min(100, currentValue));
-            fgDataPoints2.push({ time, value: Math.round(currentValue) });
+            fgDataPoints2.push({ time, value: Math.round(currentValue), volume: Math.floor(Math.random() * 1000) });
         }
     }
 }
 
 async function updateData() {
     console.log('Starting updateData at', new Date().toISOString());
-    const url1 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins1.join(",")}&vs_currencies=usd`;
-    const url2 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins2.join(",")}&vs_currencies=usd`;
+    const url1 = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coins1.join(",")}`;
+    const url2 = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coins2.join(",")}`;
 
     try {
-        const res1 = await fetch(url1);
-        const data1 = await res1.json();
         const now = Date.now() / 1000;
         const estTimestamp = Math.floor(now / 30) * 30;
-        let numUp1 = 0, numDown1 = 0;
-        for (let coin of coins1) {
-            if (data1[coin] && data1[coin].usd !== undefined) {
-                let price = data1[coin].usd;
-                if (prevPrices1[coin] !== undefined) {
-                    if (price > prevPrices1[coin]) numUp1++;
-                    else if (price < prevPrices1[coin]) numDown1++;
-                }
-                prevPrices1[coin] = price;
+
+        const res1 = await fetch(url1);
+        const data1 = await res1.json();
+        let numUp1 = 0, numDown1 = 0, totalVolume1 = 0;
+        for (let coin of data1) {
+            let price = coin.current_price;
+            let volume = coin.total_volume; // Fetch real volume
+            totalVolume1 += volume;
+            if (prevPrices1[coin.id] !== undefined) {
+                if (price > prevPrices1[coin.id]) numUp1++;
+                else if (price < prevPrices1[coin.id]) numDown1++;
             }
+            prevPrices1[coin.id] = price;
         }
         let fgScore1 = fgDataPoints1.length > 0 ? fgDataPoints1[fgDataPoints1.length - 1].value : 50;
         if (numUp1 > numDown1) fgScore1 = Math.min(100, fgScore1 + 2);
         else if (numDown1 > numUp1) fgScore1 = Math.max(0, fgScore1 - 2);
-        fgDataPoints1.push({ time: estTimestamp, value: fgScore1 });
+        fgDataPoints1.push({ time: estTimestamp, value: fgScore1, volume: totalVolume1 });
         fgDataPoints1 = fgDataPoints1.filter(p => p.time >= now - 36000);
 
         const res2 = await fetch(url2);
         const data2 = await res2.json();
-        let numUp2 = 0, numDown2 = 0;
-        for (let coin of coins2) {
-            if (data2[coin] && data2[coin].usd !== undefined) {
-                let price = data2[coin].usd;
-                if (prevPrices2[coin] !== undefined) {
-                    if (price > prevPrices2[coin]) numUp2++;
-                    else if (price < prevPrices2[coin]) numDown2++;
-                }
-                prevPrices2[coin] = price;
+        let numUp2 = 0, numDown2 = 0, totalVolume2 = 0;
+        for (let coin of data2) {
+            let price = coin.current_price;
+            let volume = coin.total_volume; // Fetch real volume
+            totalVolume2 += volume;
+            if (prevPrices2[coin.id] !== undefined) {
+                if (price > prevPrices2[coin.id]) numUp2++;
+                else if (price < prevPrices2[coin.id]) numDown2++;
             }
+            prevPrices2[coin.id] = price;
         }
         let fgScore2 = fgDataPoints2.length > 0 ? fgDataPoints2[fgDataPoints2.length - 1].value : 50;
         if (numUp2 > numDown2) fgScore2 = Math.min(100, fgScore2 + 2);
         else if (numDown2 > numUp2) fgScore2 = Math.max(0, fgScore2 - 2);
-        fgDataPoints2.push({ time: estTimestamp, value: fgScore2 });
+        fgDataPoints2.push({ time: estTimestamp, value: fgScore2, volume: totalVolume2 });
         fgDataPoints2 = fgDataPoints2.filter(p => p.time >= now - 36000);
 
         console.log(`Broadcasting to ${wss.clients.size} clients`);
@@ -96,12 +97,12 @@ async function updateData() {
                 client.send(JSON.stringify({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
             }
         });
-
-        console.log(`Updated data at ${new Date(estTimestamp * 1000).toISOString()}: Chart 1 - ${fgScore1}, Chart 2 - ${fgScore2}`);
     } catch (error) {
         console.error('Error updating data:', error);
     }
 }
+
+// Rest of your server.js remains unchanged...
 
 function updateLeaderboard(userId, clicks) {
     const existing = leaderboard.find(entry => entry.id === userId);
