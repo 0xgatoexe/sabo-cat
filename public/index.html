@@ -759,289 +759,289 @@
         </a>
     </div>
 
-    <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        let w = canvas.width = window.innerWidth;
-        let h = canvas.height = document.getElementById('matrix-container').offsetHeight;
-        const str = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポ";
-        const matrix = str.split("");
-        let font = 12;
-        let col = w / font;
-        let arr = [];
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = document.getElementById('matrix-container').offsetHeight;
+    const str = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポ";
+    const matrix = str.split("");
+    let font = 12;
+    let col = w / font;
+    let arr = [];
+    for(let i = 0; i < col; i++) arr[i] = 1;
+    function rain() {
+        ctx.fillStyle = "rgba(0,0,0,0.05)";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#00ff00";
+        ctx.font = font + "px arial";
+        for(let i = 0; i < arr.length; i++) {
+            let txt = matrix[Math.floor(Math.random() * matrix.length)];
+            ctx.fillText(txt, i * font, arr[i] * font);
+            if(arr[i] * font > h && Math.random() > 0.975) arr[i] = 0;
+            arr[i]++;
+        }
+    }
+    setInterval(rain, 30);
+    window.addEventListener("resize", () => {
+        w = canvas.width = window.innerWidth;
+        h = document.getElementById('matrix-container').offsetHeight;
+        col = w / font;
+        arr = [];
         for(let i = 0; i < col; i++) arr[i] = 1;
-        function rain() {
-            ctx.fillStyle = "rgba(0,0,0,0.05)";
-            ctx.fillRect(0, 0, w, h);
-            ctx.fillStyle = "#00ff00";
-            ctx.font = font + "px arial";
-            for(let i = 0; i < arr.length; i++) {
-                let txt = matrix[Math.floor(Math.random() * matrix.length)];
-                ctx.fillText(txt, i * font, arr[i] * font);
-                if(arr[i] * font > h && Math.random() > 0.975) arr[i] = 0;
-                arr[i]++;
+    });
+
+    window.addEventListener('load', async function () {
+        const chart1Container = document.getElementById('chart1');
+        const chart2Container = document.getElementById('chart2');
+
+        // Chart Initialization
+        const chart1 = LightweightCharts.createChart(chart1Container, {
+            width: chart1Container.offsetWidth,
+            height: chart1Container.offsetHeight,
+            layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
+            grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
+            timeScale: {
+                timeVisible: true,
+                secondsVisible: true,
+                borderColor: '#00ff00',
+                tickMarkFormatter: (time) => {
+                    const date = new Date(time * 1000);
+                    return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                },
+            },
+            rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
+        });
+
+        const chart2 = LightweightCharts.createChart(chart2Container, {
+            width: chart2Container.offsetWidth,
+            height: chart2Container.offsetHeight,
+            layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
+            grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
+            timeScale: {
+                timeVisible: true,
+                secondsVisible: true,
+                borderColor: '#00ff00',
+                tickMarkFormatter: (time) => {
+                    const date = new Date(time * 1000);
+                    return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                },
+            },
+            rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
+        });
+
+        // Chart Data Management
+        let fgSeries1 = [], fgSeries2 = [];
+        let fgDataPoints1 = [];
+        let fgDataPoints2 = [];
+
+        async function fetchPreloadedData() {
+            const baseUrl = window.location.origin;
+            try {
+                const [response1, response2] = await Promise.all([
+                    fetch(`${baseUrl}/api/chart1`),
+                    fetch(`${baseUrl}/api/chart2`)
+                ]);
+                fgDataPoints1 = await response1.json();
+                fgDataPoints2 = await response2.json();
+                updateChart(chart1, fgDataPoints1, fgSeries1, 'ALL');
+                updateChart(chart2, fgDataPoints2, fgSeries2, 'ALL');
+            } catch (error) {
+                console.error('Error fetching preloaded data:', error);
             }
         }
-        setInterval(rain, 30);
-        window.addEventListener("resize", () => {
-            w = canvas.width = window.innerWidth;
-            h = document.getElementById('matrix-container').offsetHeight;
-            col = w / font;
-            arr = [];
-            for(let i = 0; i < col; i++) arr[i] = 1;
-        });
-    
-        window.addEventListener('load', async function () {
-            const chart1Container = document.getElementById('chart1');
-            const chart2Container = document.getElementById('chart2');
-    
-            // Chart Initialization
-            const chart1 = LightweightCharts.createChart(chart1Container, {
-                width: chart1Container.offsetWidth,
-                height: chart1Container.offsetHeight,
-                layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
-                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
-                timeScale: {
-                    timeVisible: true,
-                    secondsVisible: true,
-                    borderColor: '#00ff00',
-                    tickMarkFormatter: (time) => {
-                        const date = new Date(time * 1000);
-                        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    },
-                },
-                rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
-            });
-    
-            const chart2 = LightweightCharts.createChart(chart2Container, {
-                width: chart2Container.offsetWidth,
-                height: chart2Container.offsetHeight,
-                layout: { backgroundColor: '#1a1a1a', textColor: '#ffffff' },
-                grid: { vertLines: { color: 'rgba(255, 255, 255, 0.1)' }, horzLines: { color: 'rgba(255, 255, 255, 0.1)' } },
-                timeScale: {
-                    timeVisible: true,
-                    secondsVisible: true,
-                    borderColor: '#00ff00',
-                    tickMarkFormatter: (time) => {
-                        const date = new Date(time * 1000);
-                        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    },
-                },
-                rightPriceScale: { borderColor: '#00ff00', scaleMargins: { top: 0.1, bottom: 0.1 } },
-            });
-    
-            // Chart Data Management
-            let fgSeries1 = [], fgSeries2 = [];
-            let fgDataPoints1 = [];
-            let fgDataPoints2 = [];
-    
-            async function fetchPreloadedData() {
-                const baseUrl = window.location.origin;
-                try {
-                    const [response1, response2] = await Promise.all([
-                        fetch(`${baseUrl}/api/chart1`),
-                        fetch(`${baseUrl}/api/chart2`)
-                    ]);
-                    fgDataPoints1 = await response1.json();
-                    fgDataPoints2 = await response2.json();
+
+        async function fetchRealTimeData() {
+            const baseUrl = window.location.origin;
+            try {
+                const [response1, response2] = await Promise.all([
+                    fetch(`${baseUrl}/api/chart1`),
+                    fetch(`${baseUrl}/api/chart2`)
+                ]);
+                const newData1 = await response1.json();
+                const newData2 = await response2.json();
+
+                const latestPoint1 = newData1[newData1.length - 1];
+                const latestPoint2 = newData2[newData2.length - 1];
+
+                if (fgDataPoints1.length === 0 || fgDataPoints1[fgDataPoints1.length - 1].time < latestPoint1.time) {
+                    fgDataPoints1.push(latestPoint1);
                     updateChart(chart1, fgDataPoints1, fgSeries1, 'ALL');
+                }
+                if (fgDataPoints2.length === 0 || fgDataPoints2[fgDataPoints2.length - 1].time < latestPoint2.time) {
+                    fgDataPoints2.push(latestPoint2);
                     updateChart(chart2, fgDataPoints2, fgSeries2, 'ALL');
-                } catch (error) {
-                    console.error('Error fetching preloaded data:', error);
                 }
+            } catch (error) {
+                console.error('Error fetching real-time data:', error);
             }
-    
-            async function fetchRealTimeData() {
-                const baseUrl = window.location.origin;
-                try {
-                    const [response1, response2] = await Promise.all([
-                        fetch(`${baseUrl}/api/chart1`),
-                        fetch(`${baseUrl}/api/chart2`)
-                    ]);
-                    const newData1 = await response1.json();
-                    const newData2 = await response2.json();
-    
-                    const latestPoint1 = newData1[newData1.length - 1];
-                    const latestPoint2 = newData2[newData2.length - 1];
-    
-                    if (fgDataPoints1.length === 0 || fgDataPoints1[fgDataPoints1.length - 1].time < latestPoint1.time) {
-                        fgDataPoints1.push(latestPoint1);
-                        updateChart(chart1, fgDataPoints1, fgSeries1, 'ALL');
-                    }
-                    if (fgDataPoints2.length === 0 || fgDataPoints2[fgDataPoints2.length - 1].time < latestPoint2.time) {
-                        fgDataPoints2.push(latestPoint2);
-                        updateChart(chart2, fgDataPoints2, fgSeries2, 'ALL');
-                    }
-                } catch (error) {
-                    console.error('Error fetching real-time data:', error);
-                }
-            }
-    
-            function updateChart(chart, dataPoints, seriesArray, timeFrame) {
-                const now = Math.floor(Date.now() / 1000);
-                const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
-                const cutoff = now - timeFrames[timeFrame];
-                const filteredData = dataPoints.filter(point => point.time >= cutoff);
-    
-                seriesArray.forEach(s => chart.removeSeries(s.series));
-                seriesArray.length = 0;
-    
-                const series = chart.addCandlestickSeries({
-                    upColor: '#00ff00',
-                    downColor: '#ff0000',
-                    borderVisible: false,
-                    wickUpColor: '#00ff00',
-                    wickDownColor: '#ff0000',
-                });
-                seriesArray.push({ series });
-    
-                series.setData(filteredData);
-                chart.timeScale().fitContent();
-            }
-    
-            function createTimeFrameSelector(chartNum, chart, dataPoints, seriesArray) {
-                const container = document.getElementById(`chart${chartNum}`).parentElement;
-                const selector = document.createElement('select');
-                selector.style.position = 'absolute';
-                selector.style.top = '10px';
-                selector.style.right = '10px';
-                selector.style.background = '#1a1a1a';
-                selector.style.color = '#00ff00';
-                selector.style.border = '1px solid #00ff00';
-                selector.style.padding = '5px';
-                const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
-                for (const [label] of Object.entries(timeFrames)) {
-                    const option = document.createElement('option');
-                    option.value = label;
-                    option.text = label;
-                    selector.appendChild(option);
-                }
-                selector.value = 'ALL';
-                container.style.position = 'relative';
-                container.appendChild(selector);
-    
-                selector.addEventListener('change', () => {
-                    updateChart(chart, dataPoints, seriesArray, selector.value);
-                });
-            }
-    
-            await fetchPreloadedData();
-            createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
-            createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
-            setInterval(fetchRealTimeData, 30000);
-    
-            function resizeCharts() {
-                chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
-                chart2.resize(chart2Container.offsetWidth, chart2Container.offsetHeight);
-            }
-            window.addEventListener('resize', resizeCharts);
-    
-            // Leaderboard and Click Logic
-            const userId = 'user_' + Math.random().toString(36).substr(2, 9); // Unique user ID
-            let clickCount = 0;
-    
-            async function updateClickCount() {
-                clickCount++;
-                document.getElementById('counter-button').textContent = `Counter: ${clickCount}`;
-                await fetch('/api/click', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, clicks: clickCount })
-                });
-            }
-    
-            function updateLeaderboardDisplay(data) {
-                const leaderboardList = document.getElementById('leaderboard-list');
-                leaderboardList.innerHTML = '';
-                data.forEach((entry, index) => {
-                    const li = document.createElement('li');
-                    li.textContent = `Cat User: ${entry.id.split('_')[1]} - ${entry.clicks} clicks`;
-                    li.style.color = '#ffffff'; // White font
-                    leaderboardList.appendChild(li);
-                });
-            }
-    
-            const ws = new WebSocket(`ws://${window.location.host}`);
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                updateLeaderboardDisplay(data.leaderboard);
-            };
-    
-            const caButton = document.querySelector('.ca-button');
-            const copiedMessage = document.getElementById('copied-message');
-            const caString = "YOUR_LONG_STRING_HERE";
-            caButton.addEventListener('click', () => {
-                navigator.clipboard.writeText(caString).then(() => {
-                    copiedMessage.style.opacity = '1';
-                    setTimeout(() => copiedMessage.style.opacity = '0', 1000);
-                });
+        }
+
+        function updateChart(chart, dataPoints, seriesArray, timeFrame) {
+            const now = Math.floor(Date.now() / 1000);
+            const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
+            const cutoff = now - timeFrames[timeFrame];
+            const filteredData = dataPoints.filter(point => point.time >= cutoff);
+
+            seriesArray.forEach(s => chart.removeSeries(s.series));
+            seriesArray.length = 0;
+
+            const series = chart.addCandlestickSeries({
+                upColor: '#00ff00',
+                downColor: '#ff0000',
+                borderVisible: false,
+                wickUpColor: '#00ff00',
+                wickDownColor: '#ff0000',
             });
-    
-            const mailLogo = document.getElementById('mail-logo');
-            const mailCopiedMessage = document.getElementById('mail-copied-message');
-            const mailString = "0xgatoexe@gmail.com";
-            mailLogo.addEventListener('click', () => {
-                navigator.clipboard.writeText(mailString).then(() => {
-                    mailCopiedMessage.style.opacity = '1';
-                    setTimeout(() => mailCopiedMessage.style.opacity = '0', 1000);
-                });
-            });
-    
-            const buyButton = document.querySelector('.buy-button');
-            const buyUrl = "https://example.com";
-            buyButton.addEventListener('click', () => window.open(buyUrl, '_blank'));
-    
-            const manifestoButton = document.querySelector('.manifesto-button');
-            const manifestoSection = document.getElementById('manifesto');
-            manifestoButton.addEventListener('click', () => manifestoSection.scrollIntoView({ behavior: 'smooth' }));
-    
-            const logoImage = document.getElementById('logo-image');
-            let isFlipped = false;
-            logoImage.addEventListener('click', () => {
-                isFlipped = !isFlipped;
-                logoImage.style.transform = isFlipped ? 'rotate(180deg)' : 'rotate(0deg)';
-            });
-    
-            const galleryImages = document.querySelectorAll('.gallery-image');
-            galleryImages.forEach(gallery => {
-                const img = gallery.querySelector('img');
-                const popup = gallery.querySelector('.popup');
-                const closeBtn = gallery.querySelector('.popup-close');
-                img.addEventListener('click', () => popup.style.display = 'block');
-                closeBtn.addEventListener('click', () => popup.style.display = 'none');
-            });
-    
-            const audio = document.getElementById('background-audio');
-            const audioToggleButton = document.getElementById('audio-toggle');
-            audio.play().catch(error => {
-                console.log("Autoplay was prevented:", error);
-                document.body.addEventListener('click', function startAudio() {
-                    audio.play();
-                    document.body.removeEventListener('click', startAudio);
-                }, { once: true });
-            });
-            audioToggleButton.addEventListener('click', () => {
-                if (audio.paused) {
-                    audio.play();
-                    audioToggleButton.textContent = 'PAUSE';
-                } else {
-                    audio.pause();
-                    audioToggleButton.textContent = 'PLAY';
-                }
-            });
-    
-            const transparencyImg = document.querySelector('#matrix-image img:first-child');
-            const staffImg = document.querySelector('#matrix-image img:last-child');
-            let rotationCount = 0;
-            function rotateStaff() {
-                rotationCount = (rotationCount + 1) % 8;
-                const rotationAngle = rotationCount * 45;
-                staffImg.style.transform = `rotate(${rotationAngle}deg)`;
-                updateClickCount();
+            seriesArray.push({ series });
+
+            series.setData(filteredData);
+            chart.timeScale().fitContent();
+        }
+
+        function createTimeFrameSelector(chartNum, chart, dataPoints, seriesArray) {
+            const container = document.getElementById(`chart${chartNum}`).parentElement;
+            const selector = document.createElement('select');
+            selector.style.position = 'absolute';
+            selector.style.top = '10px';
+            selector.style.right = '10px';
+            selector.style.background = '#1a1a1a';
+            selector.style.color = '#00ff00';
+            selector.style.border = '1px solid #00ff00';
+            selector.style.padding = '5px';
+            const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
+            for (const [label] of Object.entries(timeFrames)) {
+                const option = document.createElement('option');
+                option.value = label;
+                option.text = label;
+                selector.appendChild(option);
             }
-            transparencyImg.addEventListener('click', rotateStaff);
-            staffImg.addEventListener('click', rotateStaff);
+            selector.value = 'ALL';
+            container.style.position = 'relative';
+            container.appendChild(selector);
+
+            selector.addEventListener('change', () => {
+                updateChart(chart, dataPoints, seriesArray, selector.value);
+            });
+        }
+
+        await fetchPreloadedData();
+        createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
+        createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
+        setInterval(fetchRealTimeData, 30000);
+
+        function resizeCharts() {
+            chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
+            chart2.resize(chart2Container.offsetWidth, chart2Container.offsetHeight);
+        }
+        window.addEventListener('resize', resizeCharts);
+
+        // Leaderboard and Click Logic
+        const userId = 'user_' + Math.random().toString(36).substr(2, 9); // Unique user ID
+        let clickCount = 0;
+
+        async function updateClickCount() {
+            clickCount++;
+            document.getElementById('counter-button').textContent = `Counter: ${clickCount}`;
+            await fetch('/api/click', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, clicks: clickCount })
+            });
+        }
+
+        function updateLeaderboardDisplay(data) {
+            const leaderboardList = document.getElementById('leaderboard-list');
+            leaderboardList.innerHTML = '';
+            data.forEach((entry, index) => {
+                const li = document.createElement('li');
+                li.textContent = `Cat User: ${entry.id.split('_')[1]} - ${entry.clicks} clicks`;
+                li.style.color = '#ffffff'; // White font
+                leaderboardList.appendChild(li);
+            });
+        }
+
+        const ws = new WebSocket(`ws://${window.location.host}`);
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            updateLeaderboardDisplay(data.leaderboard);
+        };
+
+        const caButton = document.querySelector('.ca-button');
+        const copiedMessage = document.getElementById('copied-message');
+        const caString = "YOUR_LONG_STRING_HERE";
+        caButton.addEventListener('click', () => {
+            navigator.clipboard.writeText(caString).then(() => {
+                copiedMessage.style.opacity = '1';
+                setTimeout(() => copiedMessage.style.opacity = '0', 1000);
+            });
         });
-    </script>
+
+        const mailLogo = document.getElementById('mail-logo');
+        const mailCopiedMessage = document.getElementById('mail-copied-message');
+        const mailString = "0xgatoexe@gmail.com";
+        mailLogo.addEventListener('click', () => {
+            navigator.clipboard.writeText(mailString).then(() => {
+                mailCopiedMessage.style.opacity = '1';
+                setTimeout(() => mailCopiedMessage.style.opacity = '0', 1000);
+            });
+        });
+
+        const buyButton = document.querySelector('.buy-button');
+        const buyUrl = "https://example.com";
+        buyButton.addEventListener('click', () => window.open(buyUrl, '_blank'));
+
+        const manifestoButton = document.querySelector('.manifesto-button');
+        const manifestoSection = document.getElementById('manifesto');
+        manifestoButton.addEventListener('click', () => manifestoSection.scrollIntoView({ behavior: 'smooth' }));
+
+        const logoImage = document.getElementById('logo-image');
+        let isFlipped = false;
+        logoImage.addEventListener('click', () => {
+            isFlipped = !isFlipped;
+            logoImage.style.transform = isFlipped ? 'rotate(180deg)' : 'rotate(0deg)';
+        });
+
+        const galleryImages = document.querySelectorAll('.gallery-image');
+        galleryImages.forEach(gallery => {
+            const img = gallery.querySelector('img');
+            const popup = gallery.querySelector('.popup');
+            const closeBtn = gallery.querySelector('.popup-close');
+            img.addEventListener('click', () => popup.style.display = 'block');
+            closeBtn.addEventListener('click', () => popup.style.display = 'none');
+        });
+
+        const audio = document.getElementById('background-audio');
+        const audioToggleButton = document.getElementById('audio-toggle');
+        audio.play().catch(error => {
+            console.log("Autoplay was prevented:", error);
+            document.body.addEventListener('click', function startAudio() {
+                audio.play();
+                document.body.removeEventListener('click', startAudio);
+            }, { once: true });
+        });
+        audioToggleButton.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                audioToggleButton.textContent = 'PAUSE';
+            } else {
+                audio.pause();
+                audioToggleButton.textContent = 'PLAY';
+            }
+        });
+
+        const transparencyImg = document.querySelector('#matrix-image img:first-child');
+        const staffImg = document.querySelector('#matrix-image img:last-child');
+        let rotationCount = 0;
+        function rotateStaff() {
+            rotationCount = (rotationCount + 1) % 8;
+            const rotationAngle = rotationCount * 45;
+            staffImg.style.transform = `rotate(${rotationAngle}deg)`;
+            updateClickCount();
+        }
+        transparencyImg.addEventListener('click', rotateStaff);
+        staffImg.addEventListener('click', rotateStaff);
+    });
+</script>
 </body>
 </html>
