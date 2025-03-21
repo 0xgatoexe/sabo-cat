@@ -570,32 +570,39 @@
                 margin: 0.1rem 0;
             }
             .leaderboard {
-                width: 90%;
-                max-width: 400px;
-                background: #1a1a1a;
-                padding: 1rem;
-                margin: 1rem auto;
-                border: 1px solid #00ff00;
-                border-radius: 5px;
-                color: #00ff00;
-                font-family: 'main', sans-serif;
-            }
-            .leaderboard h2 {
-                color: #00ff00;
-                font-size: clamp(1rem, 2.5vw, 1.5rem);
-                text-align: center;
-                margin-bottom: 0.5rem;
-                text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
-            }
-            .leaderboard ul {
-                list-style: none;
-                padding: 0;
-            }
-            .leaderboard li {
-                font-size: clamp(0.8rem, 2vw, 1rem);
-                margin: 0.3rem 0;
-                text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
-            }
+    width: 90%;
+    max-width: 400px;
+    background: #1a1a1a;
+    padding: 1rem;
+    margin: 1rem auto; /* 'auto' centers it horizontally */
+    border: 1px solid #00ff00;
+    border-radius: 5px;
+    color: #ffffff; /* Changed to white from #00ff00 */
+    font-family: 'main', sans-serif;
+    text-align: center; /* Center-aligns all text inside */
+}
+
+.leaderboard h2 {
+    color: #00ff00; /* Keep this green for contrast */
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    text-align: center;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+}
+
+.leaderboard ul {
+    list-style: none;
+    padding: 0;
+    margin: 0; /* Remove default margin */
+}
+
+.leaderboard li {
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    margin: 0.3rem 0;
+    color: #ffffff; /* Ensure list items are white */
+    text-shadow: none; /* Remove shadow for cleaner look */
+    text-align: center; /* Center-align each list item */
+}
         }
     </style>
 </head>
