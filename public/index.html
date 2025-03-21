@@ -570,39 +570,39 @@
                 margin: 0.1rem 0;
             }
             .leaderboard {
-    width: 90%;
-    max-width: 400px;
-    background: #1a1a1a;
-    padding: 1rem;
-    margin: 1rem auto; /* 'auto' centers it horizontally */
-    border: 1px solid #00ff00;
-    border-radius: 5px;
-    color: #ffffff; /* Changed to white from #00ff00 */
-    font-family: 'main', sans-serif;
-    text-align: center; /* Center-aligns all text inside */
-}
+                width: 90%;
+                max-width: 400px;
+                background: #1a1a1a;
+                padding: 1rem;
+                margin: 1rem auto; /* Centers the container horizontally */
+                border: 1px solid #00ff00;
+                border-radius: 5px;
+                color: #ffffff; /* Base color white for all text inside */
+                font-family: 'main', sans-serif;
+                text-align: center; /* Centers all text content */
+            }
 
-.leaderboard h2 {
-    color: #00ff00; /* Keep this green for contrast */
-    font-size: clamp(1rem, 2.5vw, 1.5rem);
-    text-align: center;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
-}
+            .leaderboard h2 {
+                color: #00ff00; /* Green for the title */
+                font-size: clamp(1rem, 2.5vw, 1.5rem);
+                margin-bottom: 0.5rem;
+                text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+                text-align: center; /* Explicitly center the title */
+            }
 
-.leaderboard ul {
-    list-style: none;
-    padding: 0;
-    margin: 0; /* Remove default margin */
-}
+            .leaderboard ul {
+                list-style: none;
+                padding: 0;
+                margin: 0; /* Remove any default spacing */
+            }
 
-.leaderboard li {
-    font-size: clamp(0.8rem, 2vw, 1rem);
-    margin: 0.3rem 0;
-    color: #ffffff; /* Ensure list items are white */
-    text-shadow: none; /* Remove shadow for cleaner look */
-    text-align: center; /* Center-align each list item */
-}
+            .leaderboard li {
+                color: #ffffff !important; /* Force white color, overriding any other styles */
+                font-size: clamp(0.8rem, 2vw, 1rem);
+                margin: 0.3rem 0;
+                text-align: center; /* Center each list item */
+                text-shadow: 0 0 3px rgba(255, 255, 255, 0.5); /* Optional: white glow for visibility */
+            }
         }
     </style>
 </head>
@@ -662,7 +662,7 @@
         </div>
     </div>
     <div id="leaderboard" class="leaderboard">
-        <h2>Top 10 Clickers</h2>
+        <h2>Top 10 Staff Spinners</h2>
         <ul id="leaderboard-list"></ul>
     </div>
     <img src="/images/sabo-cat-twitter-banner.png" alt="Sabo Cat Twitter Banner" class="twitter-banner">
