@@ -844,6 +844,10 @@
                 ]);
                 fgDataPoints1 = await response1.json();
                 fgDataPoints2 = await response2.json();
+
+                console.log('Initial Chart 1 data:', fgDataPoints1);
+                console.log('Initial Chart 2 data:', fgDataPoints2);
+
                 updateChart(chart1, fgDataPoints1, fgSeries1, 'ALL');
                 updateChart(chart2, fgDataPoints2, fgSeries2, 'ALL');
             } catch (error) {
@@ -861,6 +865,7 @@
                 const newData1 = await response1.json();
                 const newData2 = await response2.json();
 
+                // Append only the latest point to avoid duplicating history
                 const latestPoint1 = newData1[newData1.length - 1];
                 const latestPoint2 = newData2[newData2.length - 1];
 
@@ -878,6 +883,7 @@
         }
 
         function updateChart(chart, dataPoints, seriesArray, timeFrame) {
+            console.log(`Updating chart with ${dataPoints.length} points`);
             const now = Math.floor(Date.now() / 1000);
             const timeFrames = { '1H': 3600, '4H': 14400, '1D': 86400, 'ALL': Infinity };
             const cutoff = now - timeFrames[timeFrame];
@@ -886,19 +892,23 @@
             seriesArray.forEach(s => chart.removeSeries(s.series));
             seriesArray.length = 0;
 
-            const series = chart.addCandlestickSeries({
-                upColor: '#00ff00',
-                downColor: '#ff0000',
-                borderVisible: false,
-                wickUpColor: '#00ff00',
-                wickDownColor: '#ff0000',
-            });
-            seriesArray.push({ series });
-
-            series.setData(filteredData);
+            let currentSeries = null;
+            for (let i = 0; i < filteredData.length; i++) {
+                if (i === 0 || filteredData[i].value !== filteredData[i - 1].value) {
+                    const color = i > 0 && filteredData[i].value > filteredData[i - 1].value ? '#00ff00' : '#ff0000';
+                    currentSeries = chart.addLineSeries({
+                        color: color,
+                        lineWidth: 2,
+                        priceFormat: { type: 'custom', minMove: '1', formatter: price => price.toFixed(0) },
+                    });
+                    seriesArray.push({ series: currentSeries, color: color });
+                }
+                currentSeries.setData(filteredData.slice(0, i + 1));
+            }
             chart.timeScale().fitContent();
         }
 
+        // Create time frame selectors
         function createTimeFrameSelector(chartNum, chart, dataPoints, seriesArray) {
             const container = document.getElementById(`chart${chartNum}`).parentElement;
             const selector = document.createElement('select');
@@ -925,48 +935,20 @@
             });
         }
 
+        // Initialize charts with preloaded data and start real-time updates
         await fetchPreloadedData();
         createTimeFrameSelector(1, chart1, fgDataPoints1, fgSeries1);
         createTimeFrameSelector(2, chart2, fgDataPoints2, fgSeries2);
-        setInterval(fetchRealTimeData, 30000);
+        setInterval(fetchRealTimeData, 30000); // Update every 30 seconds
 
+        // Resize charts on window resize
         function resizeCharts() {
             chart1.resize(chart1Container.offsetWidth, chart1Container.offsetHeight);
             chart2.resize(chart2Container.offsetWidth, chart2Container.offsetHeight);
         }
         window.addEventListener('resize', resizeCharts);
 
-        // Leaderboard and Click Logic
-        const userId = 'user_' + Math.random().toString(36).substr(2, 9); // Unique user ID
-        let clickCount = 0;
-
-        async function updateClickCount() {
-            clickCount++;
-            document.getElementById('counter-button').textContent = `Counter: ${clickCount}`;
-            await fetch('/api/click', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, clicks: clickCount })
-            });
-        }
-
-        function updateLeaderboardDisplay(data) {
-            const leaderboardList = document.getElementById('leaderboard-list');
-            leaderboardList.innerHTML = '';
-            data.forEach((entry, index) => {
-                const li = document.createElement('li');
-                li.textContent = `Cat User: ${entry.id.split('_')[1]} - ${entry.clicks} clicks`;
-                li.style.color = '#ffffff'; // White font
-                leaderboardList.appendChild(li);
-            });
-        }
-
-        const ws = new WebSocket(`ws://${window.location.host}`);
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            updateLeaderboardDisplay(data.leaderboard);
-        };
-
+        // Remaining event listeners
         const caButton = document.querySelector('.ca-button');
         const copiedMessage = document.getElementById('copied-message');
         const caString = "YOUR_LONG_STRING_HERE";
@@ -1033,15 +1015,17 @@
         const transparencyImg = document.querySelector('#matrix-image img:first-child');
         const staffImg = document.querySelector('#matrix-image img:last-child');
         let rotationCount = 0;
+        let clickCount = 0;
         function rotateStaff() {
+            clickCount++;
             rotationCount = (rotationCount + 1) % 8;
             const rotationAngle = rotationCount * 45;
             staffImg.style.transform = `rotate(${rotationAngle}deg)`;
-            updateClickCount();
+            document.getElementById('counter-button').textContent = `Counter: ${clickCount}`;
         }
         transparencyImg.addEventListener('click', rotateStaff);
         staffImg.addEventListener('click', rotateStaff);
-    });
+        });
 </script>
 </body>
 </html>
