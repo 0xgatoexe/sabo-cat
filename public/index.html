@@ -574,17 +574,20 @@
     max-width: 400px;
     background: #1a1a1a;
     padding: 1rem;
-    margin: 1rem auto;
+    margin: 1rem auto; /* Centers the container */
     border: 1px solid #00ff00;
     border-radius: 5px;
     font-family: 'main', sans-serif;
-    text-align: center !important;
+    text-align: center !important; /* Center all content */
+    display: flex; /* Use flexbox for better control */
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center; /* Center children horizontally */
 }
 
 #leaderboard h2 {
-    color: #00ff00 !important;
+    color: #00ff00 !important; /* Green for the title */
     font-size: clamp(1rem, 2.5vw, 1.5rem);
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.5rem 0; /* Remove top margin, keep bottom */
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
     text-align: center !important;
 }
@@ -593,16 +596,17 @@
     list-style: none !important;
     padding: 0 !important;
     margin: 0 !important;
+    width: 100%; /* Ensure it takes full width for centering */
     text-align: center !important;
 }
 
 #leaderboard #leaderboard-list li {
-    color: #ffffff !important; /* Force white */
+    color: #ffffff !important; /* White font */
     font-size: clamp(0.8rem, 2vw, 1rem) !important;
     margin: 0.3rem 0 !important;
-    text-align: center !important; /* Force center */
-    background: none !important; /* Prevent background interference */
-    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5) !important; /* Ensure visibility */
+    text-align: center !important;
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5) !important;
+    display: block; /* Ensure consistent block behavior */
 }
         }
     </style>
