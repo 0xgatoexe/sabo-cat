@@ -569,40 +569,40 @@
                 font-size: clamp(0.6rem, 1.4vw, 0.9rem);
                 margin: 0.1rem 0;
             }
-            .leaderboard {
-                width: 90%;
-                max-width: 400px;
-                background: #1a1a1a;
-                padding: 1rem;
-                margin: 1rem auto; /* Centers the container horizontally */
-                border: 1px solid #00ff00;
-                border-radius: 5px;
-                color: #ffffff; /* Base color white for all text inside */
-                font-family: 'main', sans-serif;
-                text-align: center; /* Centers all text content */
-            }
+            #leaderboard.leaderboard {
+    width: 90%;
+    max-width: 400px;
+    background: #1a1a1a;
+    padding: 1rem;
+    margin: 1rem auto; /* Centers the container */
+    border: 1px solid #00ff00;
+    border-radius: 5px;
+    font-family: 'main', sans-serif;
+    text-align: center; /* Centers all text content */
+}
 
-            .leaderboard h2 {
-                color: #00ff00; /* Green for the title */
-                font-size: clamp(1rem, 2.5vw, 1.5rem);
-                margin-bottom: 0.5rem;
-                text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
-                text-align: center; /* Explicitly center the title */
-            }
+#leaderboard.leaderboard h2 {
+    color: #00ff00; /* Green for the title */
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+    text-align: center;
+}
 
-            .leaderboard ul {
-                list-style: none;
-                padding: 0;
-                margin: 0; /* Remove any default spacing */
-            }
+#leaderboard.leaderboard ul#leaderboard-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: center; /* Ensure the list itself is centered */
+}
 
-            .leaderboard li {
-                color: #ffffff !important; /* Force white color, overriding any other styles */
-                font-size: clamp(0.8rem, 2vw, 1rem);
-                margin: 0.3rem 0;
-                text-align: center; /* Center each list item */
-                text-shadow: 0 0 3px rgba(255, 255, 255, 0.5); /* Optional: white glow for visibility */
-            }
+#leaderboard.leaderboard ul#leaderboard-list li {
+    color: #ffffff !important; /* Force white color */
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    margin: 0.3rem 0;
+    text-align: center !important; /* Force centering */
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5); /* Optional glow for visibility */
+}
         }
     </style>
 </head>
