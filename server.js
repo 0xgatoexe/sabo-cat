@@ -103,7 +103,6 @@ async function updateData() {
     }
 }
 
-// Leaderboard functions
 function updateLeaderboard(userId, clicks) {
     const existing = leaderboard.find(entry => entry.id === userId);
     if (existing) {
@@ -111,21 +110,20 @@ function updateLeaderboard(userId, clicks) {
     } else {
         leaderboard.push({ id: userId, clicks });
     }
-    leaderboard.sort((a, b) => b.clicks - a.clicks); // Sort descending by clicks
+    leaderboard.sort((a, b) => b.clicks - a.clicks);
 }
 
 function getTop10Leaderboard() {
-    return leaderboard.slice(0, 10); // Return top 10
+    return leaderboard.slice(0, 10);
 }
 
-// Endpoints
 app.get('/api/chart1', (req, res) => res.json(fgDataPoints1));
 app.get('/api/chart2', (req, res) => res.json(fgDataPoints2));
 app.get('/data', (req, res) => res.json({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
 
-// New endpoint to update clicks
 app.post('/api/click', express.json(), (req, res) => {
     const { userId, clicks } = req.body;
+    console.log('Received click update:', { userId, clicks }); // Debug log
     if (userId && typeof clicks === 'number') {
         updateLeaderboard(userId, clicks);
         wss.clients.forEach(client => {
