@@ -55,10 +55,14 @@ async function updateData() {
         const now = Date.now() / 1000;
         const estTimestamp = Math.floor(now / 30) * 30;
         let numUp1 = 0, numDown1 = 0;
+        let heatmapData1 = {}; // Added for heatmap
         for (let coin of coins1) {
             if (data1[coin] && data1[coin].usd !== undefined) {
                 let price = data1[coin].usd;
                 if (prevPrices1[coin] !== undefined) {
+                    // Calculate percentage price change for heatmap
+                    const priceChange = ((price - prevPrices1[coin]) / prevPrices1[coin]) * 100;
+                    heatmapData1[coin] = { priceChange };
                     if (price > prevPrices1[coin]) numUp1++;
                     else if (price < prevPrices1[coin]) numDown1++;
                 }
@@ -74,10 +78,14 @@ async function updateData() {
         const res2 = await fetch(url2);
         const data2 = await res2.json();
         let numUp2 = 0, numDown2 = 0;
+        let heatmapData2 = {}; // Added for heatmap
         for (let coin of coins2) {
             if (data2[coin] && data2[coin].usd !== undefined) {
                 let price = data2[coin].usd;
                 if (prevPrices2[coin] !== undefined) {
+                    // Calculate percentage price change for heatmap
+                    const priceChange = ((price - prevPrices2[coin]) / prevPrices2[coin]) * 100;
+                    heatmapData2[coin] = { priceChange };
                     if (price > prevPrices2[coin]) numUp2++;
                     else if (price < prevPrices2[coin]) numDown2++;
                 }
@@ -93,7 +101,13 @@ async function updateData() {
         console.log(`Broadcasting to ${wss.clients.size} clients`);
         wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
+                client.send(JSON.stringify({ 
+                    fgDataPoints1, 
+                    fgDataPoints2, 
+                    leaderboard: getTop10Leaderboard(),
+                    heatmapData1, // Added for heatmap
+                    heatmapData2  // Added for heatmap
+                }));
             }
         });
 
@@ -119,11 +133,17 @@ function getTop10Leaderboard() {
 
 app.get('/api/chart1', (req, res) => res.json(fgDataPoints1));
 app.get('/api/chart2', (req, res) => res.json(fgDataPoints2));
-app.get('/data', (req, res) => res.json({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
+app.get('/data', (req, res) => res.json({ 
+    fgDataPoints1, 
+    fgDataPoints2, 
+    leaderboard: getTop10Leaderboard(),
+    heatmapData1: {}, // Optional: Include initial empty heatmap data
+    heatmapData2: {}  // Optional: Include initial empty heatmap data
+}));
 
 app.post('/api/click', express.json(), (req, res) => {
     const { userId, clicks } = req.body;
-    console.log('Received click update:', { userId, clicks }); // Debug log
+    console.log('Received click update:', { userId, clicks });
     if (userId && typeof clicks === 'number') {
         updateLeaderboard(userId, clicks);
         wss.clients.forEach(client => {
@@ -141,7 +161,13 @@ app.use(express.static('public'));
 
 wss.on('connection', (ws) => {
     console.log('New WebSocket connection');
-    ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
+    ws.send(JSON.stringify({ 
+        fgDataPoints1, 
+        fgDataPoints2, 
+        leaderboard: getTop10Leaderboard(),
+        heatmapData1: {}, // Initial empty heatmap data
+        heatmapData2: {}  // Initial empty heatmap data
+    }));
 });
 
 async function startServer() {
