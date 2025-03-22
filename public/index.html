@@ -908,28 +908,28 @@ window.addEventListener('load', async function () {
     }
 
     function updateLeaderboardDisplay(leaderboardData) {
-    console.log('Updating leaderboard with:', leaderboardData); // Debug log
-    const leaderboardList = document.getElementById('leaderboard-list');
-    leaderboardList.innerHTML = ''; // Clear existing content
-    if (leaderboardData && leaderboardData.length > 0) {
-        leaderboardData.forEach((entry, index) => {
+        console.log('Updating leaderboard with:', leaderboardData); // Debug log
+        const leaderboardList = document.getElementById('leaderboard-list');
+        leaderboardList.innerHTML = ''; // Clear existing content
+        if (leaderboardData && leaderboardData.length > 0) {
+            leaderboardData.forEach((entry, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${index + 1}. User ${entry.id.slice(0, 8)}...: ${entry.clicks} clicks`;
+                // Apply inline styles as a fallback
+                li.style.color = '#ffffff'; // White font
+                li.style.textAlign = 'center'; // Center text
+                li.style.display = 'block'; // Ensure it behaves as a block for centering
+                leaderboardList.appendChild(li);
+            });
+        } else {
             const li = document.createElement('li');
-            li.textContent = `${index + 1}. User ${entry.id.slice(0, 8)}...: ${entry.clicks} clicks`;
-            // Apply inline styles as a fallback
+            li.textContent = 'No clickers yet!';
             li.style.color = '#ffffff'; // White font
             li.style.textAlign = 'center'; // Center text
-            li.style.display = 'block'; // Ensure it behaves as a block for centering
+            li.style.display = 'block';
             leaderboardList.appendChild(li);
-        });
-    } else {
-        const li = document.createElement('li');
-        li.textContent = 'No clickers yet!';
-        li.style.color = '#ffffff'; // White font
-        li.style.textAlign = 'center'; // Center text
-        li.style.display = 'block';
-        leaderboardList.appendChild(li);
+        }
     }
-}
 
     async function fetchInitialData() {
         try {
@@ -957,33 +957,57 @@ window.addEventListener('load', async function () {
         }
     }
 
-    const wsUrl = window.location.protocol === 'https:' ? 'wss://' + window.location.host : 'ws://' + window.location.host;
-    console.log('Attempting WebSocket connection to:', wsUrl);
-    const ws = new WebSocket(wsUrl);
-    ws.onopen = () => console.log('WebSocket connected');
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        console.log('WebSocket data received:', data);
-        if (data.fgDataPoints1 && data.fgDataPoints1.length > 0) {
-            fgDataPoints1 = data.fgDataPoints1;
-            updateChart(chart1, series1, fgDataPoints1);
-        }
-        if (data.fgDataPoints2 && data.fgDataPoints2.length > 0) {
-            fgDataPoints2 = data.fgDataPoints2;
-            updateChart(chart2, series2, fgDataPoints2);
-        }
-        if (data.leaderboard !== undefined) {
-            updateLeaderboardDisplay(data.leaderboard);
-        }
-    };
-    ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setInterval(async () => {
-            await fetchInitialData();
-            console.log('Polling update triggered');
-        }, 30000);
-    };
-    ws.onclose = () => console.log('WebSocket closed');
+    // WebSocket reconnection logic (Step 1)
+    function connectWebSocket() {
+        const wsUrl = window.location.protocol === 'https:' ? 'wss://' + window.location.host : 'ws://' + window.location.host;
+        console.log('Attempting WebSocket connection to:', wsUrl);
+        const ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            console.log('WebSocket connected');
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log('WebSocket data received:', data);
+            if (data.fgDataPoints1 && data.fgDataPoints1.length > 0) {
+                fgDataPoints1 = data.fgDataPoints1;
+                updateChart(chart1, series1, fgDataPoints1);
+            }
+            if (data.fgDataPoints2 && data.fgDataPoints2.length > 0) {
+                fgDataPoints2 = data.fgDataPoints2;
+                updateChart(chart2, series2, fgDataPoints2);
+            }
+            if (data.leaderboard !== undefined) {
+                updateLeaderboardDisplay(data.leaderboard);
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket closed, attempting to reconnect in 2 seconds...');
+            setTimeout(connectWebSocket, 2000); // Reconnect after 2 seconds
+        };
+
+        return ws;
+    }
+
+    // Initial WebSocket connection
+    connectWebSocket();
+
+    // Keep tab awake to prevent throttling (Step 2)
+    function keepTabAwake() {
+        setInterval(() => {
+            // Perform a lightweight action to keep the tab active
+            fetch('/data', { method: 'HEAD' }) // HEAD request to avoid heavy data transfer
+                .catch(() => console.log('Keep-awake ping failed, likely offline'));
+        }, 10000); // Ping every 10 seconds
+    }
+
+    keepTabAwake();
 
     await fetchInitialData();
 
