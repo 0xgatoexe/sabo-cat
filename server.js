@@ -14,7 +14,7 @@ let fgDataPoints1 = [];
 let fgDataPoints2 = [];
 let prevPrices1 = {};
 let prevPrices2 = {};
-let leaderboard = [];
+let leaderboard = []; // Array to store { id, clicks }
 
 async function loadData() {
     const now = Math.floor(Date.now() / 1000);
@@ -50,19 +50,14 @@ async function updateData() {
     const url2 = `https://api.coingecko.com/api/v3/simple/price?ids=${coins2.join(",")}&vs_currencies=usd`;
 
     try {
-        const [res1, res2] = await Promise.all([
-            fetch(url1).then(res => res.json()),
-            fetch(url2).then(res => res.json())
-        ]);
-
+        const res1 = await fetch(url1);
+        const data1 = await res1.json();
         const now = Date.now() / 1000;
         const estTimestamp = Math.floor(now / 30) * 30;
-
-        // Update Chart 1
         let numUp1 = 0, numDown1 = 0;
         for (let coin of coins1) {
-            if (res1[coin] && res1[coin].usd !== undefined) {
-                let price = res1[coin].usd;
+            if (data1[coin] && data1[coin].usd !== undefined) {
+                let price = data1[coin].usd;
                 if (prevPrices1[coin] !== undefined) {
                     if (price > prevPrices1[coin]) numUp1++;
                     else if (price < prevPrices1[coin]) numDown1++;
@@ -76,11 +71,12 @@ async function updateData() {
         fgDataPoints1.push({ time: estTimestamp, value: fgScore1 });
         fgDataPoints1 = fgDataPoints1.filter(p => p.time >= now - 36000);
 
-        // Update Chart 2
+        const res2 = await fetch(url2);
+        const data2 = await res2.json();
         let numUp2 = 0, numDown2 = 0;
         for (let coin of coins2) {
-            if (res2[coin] && res2[coin].usd !== undefined) {
-                let price = res2[coin].usd;
+            if (data2[coin] && data2[coin].usd !== undefined) {
+                let price = data2[coin].usd;
                 if (prevPrices2[coin] !== undefined) {
                     if (price > prevPrices2[coin]) numUp2++;
                     else if (price < prevPrices2[coin]) numDown2++;
@@ -94,7 +90,6 @@ async function updateData() {
         fgDataPoints2.push({ time: estTimestamp, value: fgScore2 });
         fgDataPoints2 = fgDataPoints2.filter(p => p.time >= now - 36000);
 
-        // Broadcast to clients
         console.log(`Broadcasting to ${wss.clients.size} clients`);
         wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
@@ -105,34 +100,54 @@ async function updateData() {
         console.log(`Updated data at ${new Date(estTimestamp * 1000).toISOString()}: Chart 1 - ${fgScore1}, Chart 2 - ${fgScore2}`);
     } catch (error) {
         console.error('Error updating data:', error);
-        // Simulate data if API fails to ensure continuity
-        const now = Date.now() / 1000;
-        const estTimestamp = Math.floor(now / 30) * 30;
-        let fgScore1 = fgDataPoints1.length > 0 ? fgDataPoints1[fgDataPoints1.length - 1].value : 50;
-        let fgScore2 = fgDataPoints2.length > 0 ? fgDataPoints2[fgDataPoints2.length - 1].value : 50;
-        fgScore1 += Math.random() > 0.5 ? 2 : -2;
-        fgScore2 += Math.random() > 0.5 ? 2 : -2;
-        fgScore1 = Math.max(0, Math.min(100, fgScore1));
-        fgScore2 = Math.max(0, Math.min(100, fgScore2));
-        fgDataPoints1.push({ time: estTimestamp, value: fgScore1 });
-        fgDataPoints2.push({ time: estTimestamp, value: fgScore2 });
-        fgDataPoints1 = fgDataPoints1.filter(p => p.time >= now - 36000);
-        fgDataPoints2 = fgDataPoints2.filter(p => p.time >= now - 36000);
-
-        wss.clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
-            }
-        });
     }
 }
 
-// Rest of your server.js remains unchanged (leaderboard functions, routes, etc.)
+function updateLeaderboard(userId, clicks) {
+    const existing = leaderboard.find(entry => entry.id === userId);
+    if (existing) {
+        existing.clicks = clicks;
+    } else {
+        leaderboard.push({ id: userId, clicks });
+    }
+    leaderboard.sort((a, b) => b.clicks - a.clicks);
+}
+
+function getTop10Leaderboard() {
+    return leaderboard.slice(0, 10);
+}
+
+app.get('/api/chart1', (req, res) => res.json(fgDataPoints1));
+app.get('/api/chart2', (req, res) => res.json(fgDataPoints2));
+app.get('/data', (req, res) => res.json({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
+
+app.post('/api/click', express.json(), (req, res) => {
+    const { userId, clicks } = req.body;
+    console.log('Received click update:', { userId, clicks }); // Debug log
+    if (userId && typeof clicks === 'number') {
+        updateLeaderboard(userId, clicks);
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ leaderboard: getTop10Leaderboard() }));
+            }
+        });
+        res.status(200).json({ success: true });
+    } else {
+        res.status(400).json({ error: 'Invalid request' });
+    }
+});
+
+app.use(express.static('public'));
+
+wss.on('connection', (ws) => {
+    console.log('New WebSocket connection');
+    ws.send(JSON.stringify({ fgDataPoints1, fgDataPoints2, leaderboard: getTop10Leaderboard() }));
+});
 
 async function startServer() {
     await loadData();
     setInterval(updateData, 30000);
-    updateData(); // Initial call
+    updateData();
 }
 
 startServer();
