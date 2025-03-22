@@ -631,8 +631,8 @@
         </div>
         <div class="bottom-left-buttons">
             <div class="ca-container">
-                <button class="ca-button" onclick="navigator.clipboard.writeText('DKuVAdBYV2Ys9BZ3DBfQSZGo36mTubw2WhqnTCjzpump').then(() => { document.getElementById('copied-message').style.display = 'block'; setTimeout(() => { document.getElementById('copied-message').style.display = 'none'; }, 2000); })">CA</button>
-                <div class="copied-message" id="copied-message" style="display: none; color: green;">Copied</div>
+                <button class="ca-button">CA</button>
+                <div class="copied-message" id="copied-message">Copied</div>
             </div>
             <button class="buy-button">BUY</button>
             <button class="manifesto-button">MANIFESTO</button>
@@ -1019,7 +1019,7 @@ window.addEventListener('load', async function () {
 
     const caButton = document.querySelector('.ca-button');
     const copiedMessage = document.getElementById('copied-message');
-    const caString = "YOUR_LONG_STRING_HERE"; // Replace with your actual CA string
+    const caString = "DKuVAdBYV2Ys9BZ3DBfQSZGo36mTubw2WhqnTCjzpump"; // Replace with your actual CA string
     caButton.addEventListener('click', () => {
         navigator.clipboard.writeText(caString).then(() => {
             copiedMessage.style.opacity = '1';
