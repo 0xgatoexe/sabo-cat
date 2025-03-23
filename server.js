@@ -7,8 +7,8 @@ const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const wss = new WebSocket.Server({ server });
 
-const coins1 = ["solana", "bittensor", "render-network"];
-const coins2 = ["bitcoin", "ethereum", "ripple", "binance-coin", "solana", "dogecoin"];
+const coins1 = ["binancecoin", "bittensor", "render-network", "baby-doge-coin", "fetch-ai", "pancakeswap-token"];
+const coins2 = ["bitcoin", "ethereum", "ripple", "binancecoin", "solana", "dogecoin"];
 
 let fgDataPoints1 = [];
 let fgDataPoints2 = [];
