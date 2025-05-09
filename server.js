@@ -7,14 +7,15 @@ const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const wss = new WebSocket.Server({ server });
 
-const coins1 = ["binancecoin", "bittensor", "baby-doge-coin", "fetch-ai", "pancakeswap-token"];
-const coins2 = ["bitcoin", "ethereum", "ripple", "binancecoin", "solana", "dogecoin"];
+// Updated coin lists for both charts
+const coins1 = ["solana", "official-trump", "bonk", "goatseus-maximus", "ai16z", "fartcoin", "jupiter", "dogwifcoin", "bitcoin", "ethereum", "ripple"];
+const coins2 = ["solana", "official-trump", "bonk", "goatseus-maximus", "ai16z", "fartcoin", "jupiter", "dogwifcoin", "bitcoin", "ethereum", "ripple"];
 
 let fgDataPoints1 = [];
 let fgDataPoints2 = [];
 let prevPrices1 = {};
 let prevPrices2 = {};
-let leaderboard = []; // Array to store { id, clicks }
+let leaderboard = [];
 
 async function loadData() {
     const now = Math.floor(Date.now() / 1000);
@@ -123,7 +124,7 @@ app.get('/data', (req, res) => res.json({ fgDataPoints1, fgDataPoints2, leaderbo
 
 app.post('/api/click', express.json(), (req, res) => {
     const { userId, clicks } = req.body;
-    console.log('Received click update:', { userId, clicks }); // Debug log
+    console.log('Received click update:', { userId, clicks });
     if (userId && typeof clicks === 'number') {
         updateLeaderboard(userId, clicks);
         wss.clients.forEach(client => {
